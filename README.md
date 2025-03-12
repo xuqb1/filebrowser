@@ -29,3 +29,5 @@ node app.js
 chrome 浏览器，地址栏中输入以下网址，回车
 
 https://localhost/login
+
+初始用户名密码为： admin/admin
