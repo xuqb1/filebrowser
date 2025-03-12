@@ -497,6 +497,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const settingsSpan = document.getElementsByClassName("close")[2];
   const fileListTable = getElById("fileListTable");
   
+  const userIcon = getElById("userIcon");
+  
   // 主页加载时，默认查询用户根目录下的文件夹和文件，并列出来
   getFiles();
   
@@ -553,7 +555,38 @@ document.addEventListener('DOMContentLoaded', function () {
   newFile.addEventListener('click', function () {
     fileModal.style.display = "block";
   });
-
+  
+  userIcon.addEventListener('click', function () {
+    let obj = getElById('dropdownUserMenu');
+    if(obj){
+      if(obj.style.transform == 'scale(1)'){
+        obj.style.transform = 'scale(0)';
+      }else{
+        obj.style.transform = 'scale(1)';
+      }
+    }
+  });
+  moreDiv.addEventListener('click', function () {
+    let obj = getElById('dropdownOptMenu');
+    if(obj){
+      if(obj.style.transform == 'scale(1)'){
+        obj.style.transform = 'scale(0)';
+      }else{
+        obj.style.transform = 'scale(1)';
+      }
+    }
+  });
+  // 点击页面其他地方隐藏菜单
+  document.addEventListener('click', function (event) {
+    let obj = getElById('dropdownUserMenu');
+    if (obj && !userIcon.contains(event.target) && !obj.contains(event.target)) {
+      obj.style.transform = 'scale(0)';
+    }
+    obj = getElById('dropdownOptMenu');
+    if (obj && !moreDiv.contains(event.target) && !obj.contains(event.target)) {
+      obj.style.transform = 'scale(0)';
+    }
+  });
   // 新建文件窗口，确定按钮单击响应
   newFileModal.querySelector('form').addEventListener('submit', async function (event) {
     event.preventDefault();

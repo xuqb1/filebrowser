@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
+    <link href="./bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="css/global.css" />
     <link rel="stylesheet" href="css/home.css" />
@@ -137,11 +138,49 @@
                   <div class="circleDiv" title="上传" id="uploadIcon"><i class="fa fa-chevron-up" alt="upload"></i></div>
                   <div class="circleDiv" title="信息" id="infoIcon"><i class="fa fa-info-circle"></i></div>
                   <div class="circleDiv" title="选择多个" id="multiselIcon"><i class="fa fa-check-circle"></i></div>
+                  <div class="circleDiv" title="用户" id="userIcon"><i class="fa fa-user"></i></div>
                 </div>
               </div>
               <div class="overlay" style="display: none;">
               </div>
             </header>
+            <div id="dropdownOptMenu">
+              <div class="dropdownMenuItem" title="切换显示方式" id="switchShowStyleDiv1" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i><span>切换显示方式</span></div>
+              <div class="dropdownMenuItem" title="下载" id="downloadIcon" onclick="downloadFiles()">
+                <div class="icon-container">
+                  <div class="icon">
+                    <i class="fa fa-chevron-down" alt="download"></i>
+                  </div>
+                  <div class="badge" id="downloadBadge" style="display:none;"></div>
+                </div>
+                <span>下载</span>
+              </div>
+              <div class="dropdownMenuItem" title="上传" id="uploadIcon1"><i class="fa fa-chevron-up" alt="upload"></i><span>上传</span></div>
+              <div class="dropdownMenuItem" title="信息" id="infoIcon1"><i class="fa fa-info-circle"></i><span>信息</span></div>
+              <div class="dropdownMenuItem" title="选择多个" id="multiselIcon1"><i class="fa fa-check-circle"></i><span>切换多/单选择</span></div>
+            </div>
+            
+            <div id="dropdownUserMenu">
+              <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
+                  <label for="languageSelect" class="form-label">语言:</label>
+                  <select id="languageSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
+                      <option value="sys">随浏览器</option>
+                      <option value="en-US">English</option>
+                      <option value="zh-CN">中文</option>
+                  </select>
+              </div>
+              <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
+                  <div for="themeSelect" class="form-label">样式:</div>
+                  <select id="themeSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
+                      <option value="sys">随系统</option>
+                      <option value="light">浅色</option>
+                      <option value="dark">深色</option>
+                  </select>
+              </div>
+              <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
+                  <a href="#" id="settings">设置</a>
+              </div>
+            </div>
           </div>
         </div>
       <!--</main>-->
