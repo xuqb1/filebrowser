@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Browser</title>
+    <link rel="stylesheet" href="bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/login.css">
+    <!-- 引入明暗模式样式 -->
+    <link rel="stylesheet" href="css/login_light.css" media="(prefers-color-scheme: light)">
+    <link rel="stylesheet" href="css/login_dark.css" media="(prefers-color-scheme: dark)">
+    <script type="text/javascript" src="js/util.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <div id="login"" class="mt-5">
+        <form id="loginForm">
+          <img src="img/logo.svg" alt="File Browser" width="64" style="margin: 0px auto;display: block;"></img>
+          <h1 class="text-center">File Browser</h1>
+          <!--<input autofocus="" class="input input--block" type="text" autocapitalize="off" placeholder="用户名" id="username" name="username" required>
+          <input class="input input--block" type="password" placeholder="密码" id="password" name="password" required>
+          <input class="button button--block" type="submit" value="登录">-->
+          <input autofocus class="form-control mb-3" type="text" autocapitalize="off" placeholder="用户名" id="username" name="username" required>
+          <input class="form-control mb-3" type="password" placeholder="密码" id="password" name="password" required>
+          <input class="btn btn-primary w-100" type="submit" value="登录">
+        </form>
+      </div>
+    </div>
+    <script type="text/javascript">
+      // 根据浏览器语言切换
+      const browserLanguage = navigator.language || navigator.userLanguage;
+      const languagePack = {
+        'zh-CN': {
+          title: '文件浏览器',
+          usernamePlaceholder: '用户名',
+          passwordPlaceholder: '密码',
+          loginButtonText: '登录'
+        },
+        'en': {
+          title: 'File Browser',
+          usernamePlaceholder: 'Username',
+          passwordPlaceholder: 'Password',
+          loginButtonText: 'Login'
+        }
+      };
+
+      const lang = browserLanguage.includes('zh') ? 'zh-CN' : 'en';
+      const langData = languagePack[lang];
+
+      document.title = langData.title;
+      document.querySelector('input#username').placeholder = langData.usernamePlaceholder;
+      document.querySelector('input#password').placeholder = langData.passwordPlaceholder;
+      document.querySelector('input[type="submit"]').value = langData.loginButtonText;
+    </script>
+    <script type="text/javascript" src="js/login.js"></script>
+  </body>
+</html>

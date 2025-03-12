@@ -1,0 +1,35 @@
+{
+  "users": [
+    {
+      "id": "1735914131292",
+      "username": "admin",
+      "password": "$2b$10$MTgT8CxjqsTvJv.c5VAwc.d.ndm1O2ivcbdH3tqAWR05KR6gG8bCK",
+      "rootFolderPath": "",
+      "isAdmin": 1,
+      "totalDiskSpace": 1
+    }
+  ],
+  "settings": [
+    {
+      "userid": "1735914131292",
+      "lang": "zh-CN",
+      "notShowHiddenFile": false,
+      "showAccurateTime": false,
+      "theme": 0
+    }
+  ],
+  "shared": [],
+  "global": [
+    {
+      "banOutlink": false,
+      "banShowUsedDiskSpace": false,
+      "theme": 0,
+      "instanceName": "",
+      "systemIcon": "",
+      "uploadBlockSize": "10MB",
+      "uploadFailRetryTimes": 5,
+      "defaultTotalDiskSpace": 1,
+      "version": "1.0.0"
+    }
+  ]
+}

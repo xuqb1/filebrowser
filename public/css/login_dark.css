@@ -1,0 +1,235 @@
+/* dark.css */
+:root {
+  --blue: #2196f3;
+  --dark-blue: #1e88e5;
+  --red: #f44336;
+  --dark-red: #d32f2f;
+  --moon-grey: #222;
+  --icon-red: #da4453;
+  --icon-orange: #f47750;
+  --icon-yellow: #fdbc4b;
+  --icon-green: #2ecc71;
+  --icon-blue: #1d99f3;
+  --icon-violet: #9b59b6;
+  --input-red: rgb(100, 20, 20);
+  --input-green: rgb(20, 100, 50);
+  --item-selected: #333;
+  --action: rgb(180, 200, 210);
+  --background: rgb(30, 30, 30);
+  --surfacePrimary: rgb(40, 40, 40);
+  --surfaceSecondary: rgb(60, 60, 60);
+  --divider: rgba(255, 255, 255, .05);
+  --iconPrimary: var(--icon-blue);
+  --iconSecondary: rgb(255, 255, 255);
+  --iconTertiary: rgb(100, 100, 100);
+  --textPrimary: rgb(200, 200, 200);
+  --textSecondary: rgb(255, 255, 255);
+  --hover: rgba(255, 255, 255, .1);
+  --borderPrimary: rgba(255, 255, 255, .1);
+  --borderSecondary: rgba(255, 255, 255, .2);
+  --dividerPrimary: rgba(0, 0, 0, .4);
+  --dividerSecondary: rgba(0, 0, 0, .9);
+}
+
+body {
+  font-family: Roboto, sans-serif;
+  padding-top: 4em;
+  background: var(--background);
+  color: var(--textSecondary);
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  background-color: var(--background);
+}
+
+.input {
+  background: var(--surfacePrimary);
+  color: var(--textSecondary);
+  border: 1px solid var(--borderPrimary);
+  border-radius: 0.1em;
+  padding: 0.5em 1em;
+  transition: 0.2s;
+  margin-bottom: 10px;
+}
+
+.input:focus{
+  outline: none;
+  border: 1px solid #aaa;
+}
+
+.button {
+  outline: 0px;
+  padding: 0.5em 1em;
+  border-radius: 0.1em;
+  cursor: pointer;
+  background: var(--blue);
+  color: rgb(255, 255, 255);
+  border: 1px solid var(--divider);
+  box-shadow: 0 0 5px var(--divider);
+  transition: 0.1s;
+}
+
+button, input, optgroup, select, textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: var(--surfacePrimary);
+  margin: 15% auto;
+  padding: 0px 20px 10px 20px;
+  border: 1px solid var(--borderSecondary);
+  width: 300px;
+}
+
+.modal-head {
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  display: flex;
+  margin: 0px;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--textPrimary);
+}
+
+.modal-footer {
+  text-align:right;
+  align-item:right;
+  width:100%;
+  margin:20px auto;
+  border-top:1px solid var(--divider);
+  padding-top:20px;
+}
+
+.close {
+  color: var(--textPrimary);
+  font-size: 28px;
+  font-weight: bold;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.close:hover,
+.close:focus {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid #67a0ff;
+}
+
+.circleDiv{
+  width:40px;
+  height: 40px;
+  line-height: 40px;
+  text-align:center;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.circleDiv:hover{
+  background-color: var(--hover);
+}
+
+.primaryBtn{
+  width:64px;
+  height:34px;
+  background-color: var(--blue);
+  color:#ffffff;
+  border:1px solid var(--blue);
+  border-radius:4px;
+  cursor: pointer;
+}
+
+.primaryBtn:hover {
+  border:1px solid #67a0ff;
+  background-color: #67a0ff;
+}
+
+.normalBtn{
+  width:64px;
+  height:34px;
+  background-color:var(--surfacePrimary);
+  color:var(--textPrimary);
+  border:1px solid var(--borderPrimary);
+  border-radius:4px;
+  cursor: pointer;
+}
+
+.normalBtn:hover {
+  border:1px solid #67a0ff;
+  color: #67a0ff;
+}
+
+.normalInput {
+  height:32px;
+  width:100%;
+  margin:10px 0px;
+  border: 1px solid var(--borderPrimary);
+  border-radius: 4px;
+  background-color: var(--surfacePrimary);
+  color: var(--textSecondary);
+}
+
+.normalInput:hover,
+.normalInput:focus {
+  outline: none;
+  border: 1px solid #67a0ff;
+}
+
+#login {
+  background: var(--surfacePrimary);
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+#loginForm{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 16em;
+  width: 90%;
+}
+
+.input--block {
+  margin-bottom: 0.5em;
+  display: block;
+  width: 100%;
+}
+
+.button--block {
+  margin: 0px 0px 0.5em;
+  display: block;
+  width: 100%;
+}
