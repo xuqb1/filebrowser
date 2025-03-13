@@ -57,6 +57,25 @@ function toggleSelect(id){
 }
 //切换文件，文件夹的选择与不选后调整扩展操作按钮是否显示及下载文件角标
 function selectedAfter(){
+  if(window.innerWidth<737){
+    if(selectedFiles.length<=0){
+      getElById('file-selection').style.display='none';
+      getElById('downloadBadge1').style.display='none';
+    }else{
+      getElById('file-selection').style.display='flex';
+      if(selectedFiles.length > 1){
+        getElById('shareIcon1').style.display = 'none';
+        getElById('renameIcon1').style.display = 'none';
+      }else{
+        getElById('shareIcon1').style.display = '';
+        getElById('renameIcon1').style.display = '';
+      }
+      getElById('downloadBadge1').style.display='';
+      getElById('downloadBadge1').innerHTML=selectedFiles.length;
+      switchLangAndReplaceVar('fileSelNumSpan', 'fileSelNum', selectedFiles.length)
+    }
+    return;
+  }
   if(selectedFiles.length<=0){
     getElById('extendHeaderIcons').style.display='none';
     getElById('downloadBadge').style.display='none';
@@ -97,27 +116,20 @@ function openDir(dirname){
   pathsNav.innerHTML = divStr;
   getFiles();        	
 }
-const root = document.documentElement;
-const computedStyle = getComputedStyle(root);
-const backgroundColor = computedStyle.getPropertyValue('--surfacePrimary');//background
-const textColor = computedStyle.getPropertyValue('--textSecondary');
-const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let root = document.documentElement;
+let computedStyle = getComputedStyle(root);
+let backgroundColor = computedStyle.getPropertyValue('--surfacePrimary');//background
+let textColor = computedStyle.getPropertyValue('--textPrimary');
+let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let selMenuId = 'my-files';
 //console.log(isDarkMode);
 //获取文件夹、文件
 async function getFiles(){
   dirList = [];
   fileList = [];
   selectedFiles = [];
-  let myFiles = getElById('my-files');
-  myFiles.style.backgroundColor = '#1d99f3';
-  myFiles.style.color = '#ffffff';
-  let settings = getElById('settings');
-  settings.style.backgroundColor = backgroundColor;//'#fafafa';
-  settings.style.color = textColor;//'#546e7a';
-  addEvent(settings, 'mouseover', menuMouseOverBgColor);
-  addEvent(settings, 'mouseleave', menuMouseLeaveBgColor);
-  removeEvent(myFiles, 'mouseover', menuMouseOverBgColor);
-  removeEvent(myFiles, 'mouseleave', menuMouseLeaveBgColor);
+  selMenuId = 'my-files';
+  releaseSelStatus('my-files');
   let res = await fetchDataPost('files',{'currPath':currPath});
   if(checkResponse(res, '')==false){
     if(res && res.msg == 'need re-login'){
@@ -133,6 +145,37 @@ async function getFiles(){
   dirList = res.data.dirList;
   fileList = res.data.fileList;
   showFileList();
+}
+
+function releaseSelStatus(excludeId){
+  let ids = ['my-files', 'download-list', 'upload-list', 'share-list', 'settings']
+  //console.log('L132 excludeId=',excludeId, Object.prototype.toString.call(excludeId));
+  if(isString(excludeId) == true){
+    selMenuId = excludeId;
+  }else{
+    excludeId = selMenuId;
+  }
+  root = document.documentElement;
+  computedStyle = getComputedStyle(root);
+  backgroundColor = computedStyle.getPropertyValue('--surfacePrimary');//background
+  textColor = computedStyle.getPropertyValue('--textPrimary');
+  isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  //console.log('L137 selMenuId=', selMenuId);
+  let selObj = getElById(excludeId);
+  selObj.style.backgroundColor = '#1d99f3';
+  selObj.style.color = '#ffffff';
+  removeEvent(selObj, 'mouseover', menuMouseOverBgColor);
+  removeEvent(selObj, 'mouseleave', menuMouseLeaveBgColor);
+  ids.forEach(item=>{
+    if(item != excludeId){
+      let obj = getElById(item);
+      obj.style.backgroundColor = backgroundColor;//'#fafafa';
+      obj.style.color = textColor;//'#546e7a';
+      addEvent(obj, 'mouseover', menuMouseOverBgColor);
+      addEvent(obj, 'mouseleave', menuMouseLeaveBgColor);
+    }
+  })
+  
 }
 //清除文件表格再增加行
 function clearAndAddRows(){
@@ -180,6 +223,7 @@ function showFileList(){
   if(listStyle == 'detail'){
     mainContent.style.display = 'none';
     clearAndAddRows();
+    switchWinOrPhone();
     return;
   }
   let filelistHtml = '<div style="margin-left:10px;width:100%;">';
@@ -258,7 +302,7 @@ function showFileList(){
     if(mainContent.children.length>0){
       mainContent.children[0].style.maxHeight = (windowHeight - 200) + 'px';
       mainContent.children[0].style.overflowY = 'auto';
-      console.log('L174 mainContent.children[0]=', mainContent.children[0])
+      //console.log('L174 mainContent.children[0]=', mainContent.children[0])
     }
   }
   if(languagePack){
@@ -486,6 +530,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const myFiles = getElById('my-files');
   const newFolder = getElById('new-folder');
   const newFile = getElById('new-file');
+  const downloadList = getElById('download-list');
+  const uploadList = getElById('upload-list');
+  const shareList = getElById('share-list');
   const settings = getElById('settings');
   const logout = getElById('logout');
   const mainContent = getElById('main-content');
@@ -496,6 +543,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const fileSpan = document.getElementsByClassName("close")[1];
   const settingsSpan = document.getElementsByClassName("close")[2];
   const fileListTable = getElById("fileListTable");
+  const switchMenuListBtn = getElById("switchMenulistBtn");
   
   const userIcon = getElById("userIcon");
   
@@ -510,6 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
     getElById('editfile-page').style.display = 'none';
     getElById('previewimage-page').style.display = 'none';
     getElById('settings-page').style.display = 'none';
+    selMenuId = 'my-files';
     getFiles();
   });
   
@@ -540,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if(res.result == true){
       folderModal.style.display = "none";
       // 刷新文件列表
-      //myFiles.click();
+      myFiles.click();
       let fullPath = folderName;
       if(currPath != ''){
         fullPath = currPath + '/' + fullPath;
@@ -576,6 +625,26 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
+  switchMenulistBtn.addEventListener('click', function(){
+    let menulist = getElById('left-sidebar');
+    let overlay = document.getElementsByClassName('overlay')[0];
+    console.log('L631 overlay=', overlay);
+    if(menulist){
+      if(menulist.style.display=='none'){
+        menulist.className = 'active';
+        menulist.style.display = '';
+        menulist.style.top = '0';
+        menulist.style.height= '100%';
+        overlay.style.display = '';
+      }else{
+        menulist.className = '';
+        menulist.style.display = 'none';
+        menulist.style.top = '4em';
+        overlay.style.display = 'none';
+      }
+      
+    }
+  })
   // 点击页面其他地方隐藏菜单
   document.addEventListener('click', function (event) {
     let obj = getElById('dropdownUserMenu');
@@ -583,8 +652,21 @@ document.addEventListener('DOMContentLoaded', function () {
       obj.style.transform = 'scale(0)';
     }
     obj = getElById('dropdownOptMenu');
-    if (obj && !moreDiv.contains(event.target) && !obj.contains(event.target)) {
+    if (obj && !moreDiv.contains(event.target)){ // && !obj.contains(event.target)) {
       obj.style.transform = 'scale(0)';
+    }
+    let overlay = document.getElementsByClassName('overlay')[0];
+    obj = getElById('left-sidebar');
+    if(obj && !switchMenuListBtn.contains(event.target)) {
+      //console.log('L660 obj.style.display='+obj.style.display);
+      if(obj.style.display == '' && window.innerWidth < 737){
+        obj.style.display = 'none';
+        obj.style.top = '4em';
+        obj.className = '';
+        if(overlay){
+          overlay.style.display = 'none';
+        }
+      }
     }
   });
   // 新建文件窗口，确定按钮单击响应
@@ -619,14 +701,11 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   // 左侧设置菜单项，单击响应：切换我的文件与设置菜单项的选择
   settings.addEventListener('click', function () {
-    myFiles.style.backgroundColor = backgroundColor;//'#fafafa';
-    myFiles.style.color = textColor;//'#546e7a';
     settings.style.backgroundColor = '#1d99f3';
     settings.style.color = '#ffffff';
-    addEvent(myFiles, 'mouseover', menuMouseOverBgColor);
-    addEvent(myFiles, 'mouseleave', menuMouseLeaveBgColor);
     removeEvent(settings, 'mouseover', menuMouseOverBgColor);
     removeEvent(settings, 'mouseleave', menuMouseLeaveBgColor);
+    releaseSelStatus('settings')
     getElById('dirNav').style.display = 'none';
     getElById('listing').style.display = 'none';
     getElById('main-content').style.display = 'none';
@@ -634,7 +713,29 @@ document.addEventListener('DOMContentLoaded', function () {
     getElById('previewimage-page').style.display = 'none';
     getElById('settings-page').style.display = '';
   });
-
+  // 下载列表菜单项，单击响应，显示已下载/正在下载列表
+  downloadList.addEventListener('click', function () {
+    downloadList.style.backgroundColor = '#1d99f3';
+    downloadList.style.color = '#ffffff';
+    removeEvent(downloadList, 'mouseover', menuMouseOverBgColor);
+    removeEvent(downloadList, 'mouseleave', menuMouseLeaveBgColor);
+    releaseSelStatus('download-list')
+  });
+  // 上传列表菜单项，单击响应，显示已上传/正在上传列表
+  uploadList.addEventListener('click', function () {
+    uploadList.style.backgroundColor = '#1d99f3';
+    uploadList.style.color = '#ffffff';
+    removeEvent(uploadList, 'mouseover', menuMouseOverBgColor);
+    removeEvent(uploadList, 'mouseleave', menuMouseLeaveBgColor);
+    releaseSelStatus('upload-list')
+  });
+  shareList.addEventListener('click', function () {
+    shareList.style.backgroundColor = '#1d99f3';
+    shareList.style.color = '#ffffff';
+    removeEvent(shareList, 'mouseover', menuMouseOverBgColor);
+    removeEvent(shareList, 'mouseleave', menuMouseLeaveBgColor);
+    releaseSelStatus('share-list')
+  });
   // 退出菜单项单击，退出系统
   logout.addEventListener('click', async function(){
     let res = await fetchDataPost('logout')
@@ -743,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fileModal.style.display = "none";
   };
 
-
+  // 
   settingsSpan.onclick = function () {
     settingsModal.style.display = "none";
   };
@@ -760,6 +861,7 @@ document.addEventListener('DOMContentLoaded', function () {
       settingsModal.style.display = "none";
     }
   };
+  resizeOrLoad();
 });
 
 // 几个全局变量
@@ -781,8 +883,21 @@ window.addEventListener('load', async function() {
   // 在这里添加初始加载后要执行的操作
   resizeOrLoad();
 });
+let mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+// 初始检查系统主题模式
+//handleColorSchemeChange(mediaQuery);
+
+// 监听媒体查询的变化
+if (mediaQuery.addEventListener) {
+  // 现代浏览器支持 addEventListener
+  mediaQuery.addEventListener('change', releaseSelStatus);
+} else {
+  // 旧版浏览器支持 addListener
+  mediaQuery.addListener(releaseSelStatus);
+}
 // 页面加载完成或重设置大小时执行
 async function resizeOrLoad(){
+  releaseSelStatus('my-files');
   switchWinOrPhone()
   await getUsedSpace();
   //console.log('L735 diskSpace=', diskSpace);
@@ -814,6 +929,7 @@ function switchWinOrPhone(){
     headerRight1.style.display = 'flex'
     main.style.marginLeft = '0px'
     main.style.width = windowWidth + 'px'
+    //console.log('L896 listStyle='+listStyle);
     if(listStyle == 'detail'){
       let sizeP = document.getElementsByClassName('size');
       for (const item of sizeP) {
@@ -881,6 +997,30 @@ async function switchLang(){
     console.error('L785 res=', res);
   }
 }
+// 针对单个对象，切换内容语言并替换其中的占位符
+function switchLangAndReplaceVar(objid, tempVar, value){
+  if(!languagePack || languagePack.length<=0){
+    return;
+  }
+  if(!tempVar){
+    return;
+  }
+  let langVar = languagePack.find(x=>x.id==objid);
+  if(!langVar){
+    return;
+  }
+  let obj = getElById(objid);
+  if(!obj){
+    return;
+  }
+  let htmlTemplate = langVar.value;//obj.innerHTML;
+  let replaceHtml = htmlTemplate.replace(/{([^}]+)}/g, (match, key) => {
+    return value || match;
+  });
+  //console.log('L982 htmlTemplate='+htmlTemplate);
+  //console.log('L983 replaceHtml='+replaceHtml);
+  obj.innerHTML = replaceHtml;
+}
 // 获取用户已用及全部空间大小
 async function getUsedSpace(){
   let res = await fetchDataPost('getDiskSpace',{});
@@ -900,7 +1040,12 @@ async function getUsedSpace(){
       if(diskSpace.usedDiskSpace == 0){
         diskSpace.usedDiskSpacePercent = 0;
       }else{
-        usedDiskSpacePercent = (diskSpace.usedDiskSpace/diskSpace.totalDiskSpace*100).fixed(0);
+        diskSpace.usedDiskSpace = diskSpace.usedDiskSpace/1024/1024/1024;
+        usedDiskSpacePercent = Math.trunc(diskSpace.usedDiskSpace/diskSpace.totalDiskSpace*100);//.fixed(0);
+      }
+      diskSpace.usedDiskSpace = (diskSpace.usedDiskSpace).toFixed(3);
+      if(diskSpace.usedDiskSpace == 0){
+        diskSpace.usedDiskSpace = 0;
       }
       diskSpace.usedDiskSpace += ' GB';
       diskSpace.totalDiskSpace += ' GB';
@@ -944,7 +1089,7 @@ function replaceVar(){
       usedDiskSpacePercent = 5;
     }
     elObj.style.width = usedDiskSpacePercent + '%';
-    console.log('L888 elObj.style.width='+elObj.style.width);
+    //console.log('L888 elObj.style.width='+elObj.style.width);
   }
   //替换版本
   elObj = getElById('filebrowserVersion');

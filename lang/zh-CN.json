@@ -198,5 +198,10 @@
     "id":"fileDiv", 
     "attr":"text", 
     "value":"文件"
+  }, 
+  {
+    "id":"fileSelNumSpan", 
+    "attr":"text", 
+    "value":"选中了 {fileSelNum} 个"
   }
 ]

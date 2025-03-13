@@ -15,10 +15,8 @@
   </head>
   <body>
     <div id="app" data-v-app="">
+    <div class="overlay" style="display: none;"></div>
     <div>
-      <div>
-        <div class="overlay" style="display: none;">
-      </div>
       <!--<div class="left-sidebar" id="left-sidebar">-->
       <nav id="left-sidebar">
         <!--
@@ -32,6 +30,9 @@
         <button id="my-files" class="action"><i class="fa fa-folder"></i><span id="my-filesSpan">我的文件</span></button>
         <button id="new-folder" class="action"><i class="fa fa-folder-plus"></i><span id="new-folderSpan">新建文件夹</span></button>
         <button id="new-file" class="action"><i class="fa fa-file"></i><span id="new-fileSpan">新建文件</span></button>
+        <button id="download-list" class="action"><i class="fa fa-download"></i><span id="downloadListSpan">下载列表</span></button>
+        <button id="upload-list" class="action"><i class="fa fa-upload"></i><span id="uploadListSpan">上传列表</span></button>
+        <button id="share-list" class="action"><i class="fa fa-share-alt"></i><span id="sharedListSpan">共享列表</span></button>
         <button id="settings" class="action"><i class="fa fa-cog"></i><span id="settingsSpan">设置</span></button>
         <button id="logout" class="action"><i class="fa fa-sign-out-alt"></i><span id="logoutSpan">退出</span></button>
         <div class="credits">
@@ -54,12 +55,6 @@
       </div>
       <main>
         <div>
-          <!---->
-          <!--<div class="breadcrumbs">
-              <a aria-current="page" href="/files" class="router-link-active router-link-exact-active" aria-label="主页" title="主页">
-              <i class="material-icons">home</i>
-              </a>
-          </div>-->
           <div id="dirNav" class="navDiv">
             <div class="homeIcon" style="cursor:pointer;font-size:20px;margin-right:5px;" onclick="currPath='';getFiles();"><i class="fa fa-home"></i></div>
             <div id="paths" style="display:flex;width:100%;height:48px;line-height:48px;"></div>
@@ -141,17 +136,15 @@
                   <div class="circleDiv" title="用户" id="userIcon"><i class="fa fa-user"></i></div>
                 </div>
               </div>
-              <div class="overlay" style="display: none;">
-              </div>
             </header>
             <div id="dropdownOptMenu">
               <div class="dropdownMenuItem" title="切换显示方式" id="switchShowStyleDiv1" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i><span>切换显示方式</span></div>
-              <div class="dropdownMenuItem" title="下载" id="downloadIcon" onclick="downloadFiles()">
+              <div class="dropdownMenuItem" title="下载" id="downloadIcon1" onclick="downloadFiles()">
                 <div class="icon-container">
                   <div class="icon">
                     <i class="fa fa-chevron-down" alt="download"></i>
                   </div>
-                  <div class="badge" id="downloadBadge" style="display:none;"></div>
+                  <div class="badge" id="downloadBadge1" style="display:none;"></div>
                 </div>
                 <span>下载</span>
               </div>
@@ -181,12 +174,16 @@
                   <a href="#" id="settings">设置</a>
               </div>
             </div>
+            <div id="file-selection">
+              <span id="fileSelNumSpan">选中了{fileSelNum}个</span>
+              <div class="circleDiv" title="共享" id="shareIcon1"><i class="fa fa-share-alt" alt="share"></i></div>
+              <div class="circleDiv" title="重命名" id="renameIcon1"><i class="fa fa-pen" alt="rename"></i></div>
+              <div class="circleDiv" title="复制" id="copyIcon1"><i class="fa fa-copy" alt="copy"></i></div>
+              <div class="circleDiv" title="移动" id="moveIcon1"><i class="fa fa-arrow-right" alt="move"></i></div>
+              <div class="circleDiv" title="删除" id="deleteIcon1"><i class="fa fa-trash" alt="delete"></i></div>
+            </div>
           </div>
         </div>
-      <!--</main>-->
-   
-      <!--<div class="main-content">-->
-      <!--<main>-->
         <!-- 文件列表页面 -->
         <div id="listing" class="file-icons list">
           <div  id="fileListTable" style="display:none;border:1px solid #eee;">

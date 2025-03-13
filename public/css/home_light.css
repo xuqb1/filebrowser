@@ -81,11 +81,21 @@ button, input, optgroup, select, textarea {
   line-height: 1.15;
   margin: 0px;
 }
-
+.overlay {
+  background-color: rgba(0,0,0,.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 19;
+  /*opacity: 0;*/
+  animation: .1s show forwards;
+}
 .modal {
   display: none;
   position: fixed;
-  z-index: 10;
+  z-index: 30;
   left: 0;
   top: 0;
   width: 100%;
@@ -380,8 +390,9 @@ nav {
   height: calc(100% - 4em);
   background-color: var(--surfacePrimary);
   border-right: 1px solid #ccc;
+  z-index: 20;
 }
-nav .action {
+nav.action {
   width: 100%;
   display: block;
   border-radius: 0;
@@ -391,7 +402,7 @@ nav .action {
   overflow: hidden;
   text-overflow: ellipsis;
   border-bottom: 1px solid #eee;
-    
+  color: var(--textPrimary);
 }/*
 .action {
     display: inline-block;
@@ -419,7 +430,7 @@ nav .action>* {
 }
 nav .action:hover {
   background-color: #e1e1e1;
-  color: var(--background);
+  color: var(--blue);
 }
 .credits {
   font-size: .6em;
@@ -601,7 +612,7 @@ main {
     align-items: center;
 }
 #listing.list .item .name {
-    /*width: 50%;*/
+    min-width: 45%;
 }
 #listing.list .item p.name:not(#listing.list .item.header .name) {
   margin-right: -1em;
@@ -844,4 +855,25 @@ main {
 .dropdownMenuItem i {
   width: 38px;
   height: 38px;
+}
+#file-selection {
+  position: fixed;
+  bottom: 1em;
+  left: 50%;
+  transform: translate(-50%);
+  display: none;/*flex;*/
+  align-items: center;
+  background: var(--surfaceSecondary);
+  box-shadow: rgba(0,0,0,.06) 0 1px 3px,rgba(0,0,0,.12) 0 1px 2px;
+  width: 95%;
+  max-width: 20em;
+  z-index: 1;
+  text-align: center;
+  item-align: center;
+}
+#file-selection>span {
+  display: inline-block;
+  margin-left: 1em;
+  color: var(--textPrimary);
+  margin-right: auto;
 }
