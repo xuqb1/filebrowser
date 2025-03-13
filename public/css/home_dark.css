@@ -1,4 +1,4 @@
-/* light.css */
+/* dark.css */
 /* 沿用 global.css 的变量 */
 :root {
   --blue: #2196f3;
@@ -19,7 +19,7 @@
   --background: rgb(30, 30, 30);
   --surfacePrimary: rgb(40, 40, 40);
   --surfaceSecondary: rgb(60, 60, 60);
-  --divider: rgba(255, 255, 255, .05);
+  --divider: rgba(255, 255, 255, .3);
   --iconPrimary: var(--icon-blue);
   --iconSecondary: rgb(255, 255, 255);
   --iconTertiary: rgb(100, 100, 100);
@@ -114,6 +114,8 @@ button, input, optgroup, select, textarea {
 .modal-title {
   font-weight: 700;
   font-size: 18px;
+  height: 38px;
+  line-height: 38px;
   color: var(--textPrimary);
 }
 
@@ -135,15 +137,14 @@ button, input, optgroup, select, textarea {
   line-height: 25px;
   text-align: center;
   align-items: center;
-  margin-top: 5px;
 }
 
 .close:hover,
 .close:focus {
-  color: black;
+  color: var(--red);
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid #67a0ff;
+  border: 0px solid #67a0ff;
 }
 
 .circleDiv{
@@ -424,6 +425,7 @@ nav .action:hover {
   font-size: .6em;
   margin: 3em 2.5em;
   color: #a5a5a5;
+  text-align: center;
 }
 /* 下部 左侧 */
 .left-sidebar {
@@ -515,7 +517,7 @@ main {
 }
 .homeIcon:hover{
   background-color: #ddd;
-  color: var(--background);
+  color: var(--dark-blue);
   border-radius: 10px;
 }
 .pathtxt {
@@ -524,11 +526,13 @@ main {
   line-height: 48px;
   text-align: center;
   item-align: center;
+  weight: 400;
 }
 .pathtxt:hover {
   background-color: #ddd;
-  color: var(--background);
+  color: var(--dark-blue);
   border-radius: 10px;
+  weight: 700;
 }
 /* 下部 右侧  内容区 文件列表的表格*/
 .normalTable {
@@ -718,8 +722,8 @@ main {
   align-items: center;
 }
 .smallIconDiv:hover{
-  background-color: #fff;
-  color: var(--surfacePrimary);
+  background-color: #eee;
+  color: var(--background);
 }
 .selectedsmallIconDiv{
   width:284px;
@@ -732,6 +736,7 @@ main {
   box-shadow: 3px 3px 3px #ddd;
   background-color: #2196f3;
   align-items: center;
+  color: var(--surfacePrimary);
 }
 .smallIconDivI {
   width:64px;
@@ -757,7 +762,7 @@ main {
   flex-direction: column;
   padding: 10px;
   background-color: var(--surfacePrimary);
-  color: #fff;
+  color: var(--textSecondary);
   margin: 0px 10px 10px 10px;
   cursor: pointer;
   text-align: center;
@@ -765,7 +770,7 @@ main {
   box-shadow: 3px 3px 3px #666;
 }
 .largeIconDiv:hover{
-  background-color: #fff;
+  background-color: #eee;
   color: var(--surfacePrimary);
 }
 .selectedlargeIconDiv{
@@ -777,10 +782,10 @@ main {
   padding: 10px;
   margin:0px 10px 10px 10px;
   cursor: pointer;
-  background-color: #2196f3;
+  background-color: var(--blue);
   text-align: center;
   align-items: center;
-  color: #ffffff;
+  color: var(--iconSecondary);
   box-shadow: 3px 3px 3px #ddd;
 }
 .largeIconDivI {
@@ -796,4 +801,47 @@ main {
   bottom: 30px;
   width: 280px;
   z-index: 2;
+}
+
+#dropdownOptMenu {
+  position: fixed;
+  top: 3em;
+  right: 1em;
+  width: 200px;
+  display: block;
+  background: var(--surfaceSecondary);
+  box-shadow: 0 0 5px var(--borderPrimary);
+  transform: scale(0);
+  transition: .1s ease-in-out transform;
+  transform-origin: top right;
+  z-index: 20;
+  padding: 10px 10px;
+}
+#dropdownUserMenu {
+  position: fixed;
+  top: 3em;
+  right: 1em;
+  width: 200px;
+  display: block;
+  background: var(--surfaceSecondary);
+  box-shadow: 0 0 5px var(--borderPrimary);
+  transform: scale(0);
+  transition: .1s ease-in-out transform;
+  transform-origin: top right;
+  z-index: 20;
+  padding: 10px 10px;
+}
+.dropdownMenuItem {
+  width: 100%;
+  height: 42px;
+  line-height: 42px;
+  padding-left: 20px;
+}
+.dropdownMenuItem:hover {
+  background: #555;
+  color: var(--blue);
+}
+.dropdownMenuItem i {
+  width: 38px;
+  height: 38px;
 }

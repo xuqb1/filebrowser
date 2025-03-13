@@ -1,6 +1,6 @@
 /* 上部 */
 header {
-    z-index: 1000;
+    z-index: 5;
     background: var(--surfacePrimary);
     border-bottom: 1px solid var(--divider);
     box-shadow: 0 0 5px var(--borderPrimary);
@@ -215,6 +215,7 @@ nav .action:hover {
   font-size: .6em;
   margin: 3em 2.5em;
   color: #a5a5a5;
+  text-align: center;
 }
 /* 下部 左侧 */
 .left-sidebar {
@@ -276,6 +277,7 @@ main {
   min-height: 1em;
   margin: 5em 1em 1em auto;
   width: calc(100% - 19em);
+  height: 100%;
 }
 /* 下部 右侧  内容区 文件列表的上部导航条*/
 .navDiv {
@@ -304,6 +306,7 @@ main {
 }
 .homeIcon:hover{
   background-color: #ddd;
+  color: #1a88e5;
   border-radius: 10px;
 }
 .pathtxt {
@@ -312,9 +315,13 @@ main {
   line-height: 48px;
   text-align: center;
   item-align: center;
+  weight: 400;
 }
 .pathtxt:hover {
   background-color: #ddd;
+  color: #1a88e5;
+  border-radius: 10px;
+  weight: 700;
 }
 /* 下部 右侧  内容区 文件列表的表格*/
 .normalTable {
@@ -358,7 +365,7 @@ main {
 #listing.list .item.header {
     display: flex!important;
     background: var(--background);
-    z-index: 999;
+    z-index: 5;
     padding: .85em;
     border: 0;
     border-bottom: 1px solid var(--borderPrimary);
@@ -368,11 +375,22 @@ main {
 }
 #listing.list .item div:last-of-type {
     width: calc(100% - 3em);
+}
+#listing.list {
+  height: calc(100% - 5em);
+}
+.tablebodyDiv {
+  height: calc(100% - 20em);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+#listing.list .item div:last-of-type {
+    width: calc(100% - 3em);
     display: flex;
     align-items: center;
 }
 #listing.list .item .name {
-    width: 50%;
+    /*width: 50%;*/
 }
 #listing.list .item p.name:not(#listing.list .item.header .name) {
   margin-right: -1em;
@@ -386,7 +404,7 @@ main {
 
 
 #listing.list .item .size {
-    width: 25%;
+    width: 10em;
 }
 #listing.list .item .modified {
     width: 12em;
@@ -414,12 +432,13 @@ main {
   background-color: #1d99f3;/*d3d3d3;*/
   color: #ffffff;
 }
-#listing .tablebodyDiv .item:hover {
-  background-color: #eee;
-}
-#listing .item.selected:hover {
+#listing .item.selected:hover:not(#listing.list .item.header) {
   background-color: #1d99f3;/*d3d3d3;*/
   color: #ffffff;
+}
+#listing .item:hover:not(#listing.list .item.header) {
+  background-color: #eee;/*d3d3d3;*/
+  color: #000;
 }
 #listing .item div:last-of-type {
     text-overflow: ellipsis;
@@ -478,8 +497,6 @@ main {
   font-size: 10px;
   text-align: center;
 }
-
-
 .smallIconDiv{
   width:284px;
   height:80px;
@@ -489,7 +506,7 @@ main {
   margin:0px 10px 10px 10px;
   cursor: pointer;
   /*border-bottom: 1px solid #f3f3f3;*/
-  box-shadow: 3px 3px 3px #ddd;
+  box-shadow: 3px 3px 3px #666;
   align-items: center;
 }
 .smallIconDiv:hover{
@@ -537,7 +554,7 @@ main {
   cursor: pointer;
   text-align: center;
   align-items: center;
-  box-shadow: 3px 3px 3px #ddd;
+  box-shadow: 3px 3px 3px #666;
 }
 .largeIconDiv:hover{
   background-color: #eeeeee;

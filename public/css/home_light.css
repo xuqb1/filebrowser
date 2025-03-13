@@ -19,7 +19,7 @@
   --background: rgb(250, 250, 250);
   --surfacePrimary: rgb(255, 255, 255);
   --surfaceSecondary: rgb(230, 230, 230);
-  --divider: rgba(0, 0, 0, .05);
+  --divider: rgba(0, 0, 0, .3);
   --iconPrimary: var(--icon-blue);
   --iconSecondary: rgb(255, 255, 255);
   --iconTertiary: rgb(204, 204, 204);
@@ -45,7 +45,7 @@ body, html {
   height: 100%;
   width: 100%;
   overflow-x: hidden;
-  background-color: #fafafa;
+  background-color: var(--background);
 }
 
 .input {
@@ -95,10 +95,10 @@ button, input, optgroup, select, textarea {
 }
 
 .modal-content {
-  background-color: #fefefe;
+  background-color: var(--surfacePrimary);
   margin: 15% auto;
   padding: 0px 20px 10px 20px;
-  border: 1px solid #888;
+  border: 1px solid var(--borderSecondary);
   width: 300px;
 }
 
@@ -114,7 +114,9 @@ button, input, optgroup, select, textarea {
 .modal-title {
   font-weight: 700;
   font-size: 18px;
-  color: #6f6f6f;
+  height: 38px;
+  line-height: 38px;
+  color: var(--textPrimary);
 }
 
 .modal-footer {
@@ -122,12 +124,12 @@ button, input, optgroup, select, textarea {
   align-item:right;
   width:100%;
   margin:20px auto;
-  border-top:1px solid #ddd;
+  border-top:1px solid var(--divider);
   padding-top:20px;
 }
 
 .close {
-  color: #6f6f6f;
+  color: var(--textPrimary);
   font-size: 28px;
   font-weight: bold;
   width: 25px;
@@ -135,15 +137,14 @@ button, input, optgroup, select, textarea {
   line-height: 25px;
   text-align: center;
   align-items: center;
-  margin-top: 5px;
 }
 
 .close:hover,
 .close:focus {
-  color: black;
+  color: var(--red);
   text-decoration: none;
   cursor: pointer;
-  border: 1px solid #67a0ff;
+  border: 0px solid #67a0ff;
 }
 
 .circleDiv{
@@ -156,15 +157,15 @@ button, input, optgroup, select, textarea {
 }
 
 .circleDiv:hover{
-  background-color: #eee;
+  background-color: var(--hover);
 }
 
 .primaryBtn{
   width:64px;
   height:34px;
-  background-color:#2196f3;
+  background-color: var(--blue);
   color:#ffffff;
-  border:1px solid #2196f3;
+  border:1px solid var(--blue);
   border-radius:4px;
   cursor: pointer;
 }
@@ -177,9 +178,9 @@ button, input, optgroup, select, textarea {
 .normalBtn{
   width:64px;
   height:34px;
-  background-color:#ffffff;
+  background-color:var(--surfacePrimary);
   color:#6f6f6f;
-  border:1px solid #eee;
+  border:1px solid var(--borderPrimary);
   border-radius:4px;
   cursor: pointer;
 }
@@ -193,7 +194,9 @@ button, input, optgroup, select, textarea {
   height:32px;
   width:100%;
   margin:10px 0px;
-  border: 1px solid #6f6f6f;
+  border: 1px solid var(--borderPrimary);
+  color: var(--textPrimary);
+  background-color: var(--surfacePrimary);
   border-radius: 4px;
 }
 
@@ -206,7 +209,7 @@ button, input, optgroup, select, textarea {
 /* 沿用 home.css 的样式 */
 /* 上部 */
 header {
-    z-index: 2;
+    z-index: 5;
     background: var(--surfacePrimary);
     border-bottom: 1px solid var(--divider);
     box-shadow: 0 0 5px var(--borderPrimary);
@@ -370,7 +373,59 @@ button, input, optgroup, select, textarea {
   flex: 1;
 }
 nav {
-   
+  width: 16em;
+  position: fixed;
+  top: 4em;
+  left: 0;
+  height: calc(100% - 4em);
+  background-color: var(--surfacePrimary);
+  border-right: 1px solid #ccc;
+}
+nav .action {
+  width: 100%;
+  display: block;
+  border-radius: 0;
+  font-size: 1.1em;
+  padding: .5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid #eee;
+    
+}/*
+.action {
+    display: inline-block;
+    cursor: pointer;
+    transition: .2s ease all;
+    border: 0;
+    margin: 0;
+    color: var(--action);
+    border-radius: 50%;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+    vertical-align: middle;
+    text-align: left;
+    position: relative;
+}*/
+nav .action i {
+  padding: .4em;
+  transition: .1s ease-in-out all;
+  border-radius: 50%;
+  font-size: 1.5rem;
+}
+nav .action>* {
+  vertical-align: middle;
+}
+nav .action:hover {
+  background-color: #e1e1e1;
+  color: var(--background);
+}
+.credits {
+  font-size: .6em;
+  margin: 3em 2.5em;
+  color: #a5a5a5;
+  text-align: center;
 }
 /* 下部 左侧 */
 .left-sidebar {
@@ -379,7 +434,7 @@ nav {
   top: 4em;
   left: 0;
   height: calc(100% - 4em);
-  background-color: #fafafa;
+  background-color: var(--surfacePrimary);
   border-right: 1px solid #ccc;
 }
 /* 下部 左侧 垂直菜单区 */
@@ -411,6 +466,7 @@ nav {
 }
 .vertical-menu li:hover {
   background-color: #e1e1e1;
+  color: var(--background);
 }
 /* 下部 右侧  内容区*/
 .main-content {
@@ -432,6 +488,7 @@ main {
   min-height: 1em;
   margin: 5em 1em 1em auto;
   width: calc(100% - 19em);
+  height: 100%;
 }
 /* 下部 右侧  内容区 文件列表的上部导航条*/
 .navDiv {
@@ -460,6 +517,7 @@ main {
 }
 .homeIcon:hover{
   background-color: #ddd;
+  color: var(--dark-blue);
   border-radius: 10px;
 }
 .pathtxt {
@@ -468,10 +526,13 @@ main {
   line-height: 48px;
   text-align: center;
   item-align: center;
+  weight: 400;
 }
 .pathtxt:hover {
   background-color: #ddd;
+  color: var(--dark-blue);
   border-radius: 10px;
+  weight: 700;
 }
 /* 下部 右侧  内容区 文件列表的表格*/
 .normalTable {
@@ -524,4 +585,263 @@ main {
     width: 3em;
 }
 #listing.list .item div:last-of-type {
-    width: calc(100% -
+    width: calc(100% - 3em);
+}
+#listing.list {
+  height: calc(100% - 5em);
+}
+.tablebodyDiv {
+  height: calc(100% - 20em);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+#listing.list .item div:last-of-type {
+    width: calc(100% - 3em);
+    display: flex;
+    align-items: center;
+}
+#listing.list .item .name {
+    /*width: 50%;*/
+}
+#listing.list .item p.name:not(#listing.list .item.header .name) {
+  margin-right: -1em;
+}
+#listing.list .name {
+  font-weight: 400;
+  word-wrap: break-word;
+  word-break: break-all;
+  /*white-space: pre-wrap;*/
+}
+
+
+#listing.list .item .size {
+    width: 10em;
+}
+#listing.list .item .modified {
+    width: 12em;
+}
+#listing.list .item .shared {
+    width: 5em;
+    text-align: center;
+}
+
+#listing .item {
+    background: var(--surfacePrimary);
+    border-color: var(--divider);
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    color: var(--textPrimary);
+    transition: .1s ease background,.1s ease opacity;
+    align-items: center;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+#listing .item.selected {
+  background-color: #1d99f3;/*d3d3d3;*/
+  color: #ffffff;
+}
+#listing .item.selected:hover:not(#listing.list .item.header) {
+  background-color: #1d99f3;/*d3d3d3;*/
+  color: #ffffff;
+}
+#listing .item:hover:not(#listing.list .item.header) {
+  background-color: #eee;/*d3d3d3;*/
+  color: #000;
+}
+#listing .item div:last-of-type {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+#listing .item div:last-of-type * {
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+#listing .item .size, #listing .item .modified {
+    font-size: .9em;
+}
+#listing .item p {
+    margin: 0;
+}
+.sort-icon {
+  /*position: absolute;*/
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.sort-icon i {
+  display: none;
+}
+.sort-icon.asc::after {
+  /*content: '\25B2'; *//* 向上箭头，Unicode 字符 */
+  display: inline-block;
+}
+.sort-icon.desc::after {
+  /*content: '\25BC'; */ /* 向下箭头，Unicode 字符 */
+  display: inline-block;
+}
+
+.icon-container {
+  position: relative;
+  display: inline-block;
+}
+.icon {
+  width: 30px;
+  height: 30px;
+  /*background-color: #ccc;
+  border-radius: 50%;*/
+}
+.badge {
+  position: absolute;
+  width:15px;
+  height:15px;
+  line-height: 15px;
+  bottom: -3px;
+  right: -3px;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 50%;
+  padding: 0px;
+  font-size: 10px;
+  text-align: center;
+}
+.smallIconDiv{
+  width:284px;
+  height:80px;
+  padding:0px 10px 0px 20px;
+  background-color: var(--surfacePrimary);
+  color: #fff;
+  display:flex;
+  margin:0px 10px 10px 10px;
+  cursor: pointer;
+  /*border-bottom: 1px solid #f3f3f3;*/
+  box-shadow: 3px 3px 3px #666;
+  align-items: center;
+}
+.smallIconDiv:hover{
+  background-color: #eee;
+  color: var(--background);
+}
+.selectedsmallIconDiv{
+  width:284px;
+  height:80px;
+  padding:0px 10px 0px 20px;
+  display:flex;
+  margin:0px 10px 10px 10px;
+  cursor: pointer;
+  /*border-bottom: 1px solid #f3f3f3;*/
+  box-shadow: 3px 3px 3px #ddd;
+  background-color: #2196f3;
+  align-items: center;
+  color: var(--surfacePrimary);
+}
+.smallIconDivI {
+  width:64px;
+  height:64px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  /*border: 1px solid #eee;*/
+}
+
+.smallIconText{
+  width:190px;
+  height:64px;
+  margin-left:5px;
+  font-weight:700;
+}
+
+.largeIconDiv{
+  position: relative;
+  width: 305px;
+  height: 208px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: var(--surfacePrimary);
+  color: var(--textSecondary);
+  margin: 0px 10px 10px 10px;
+  cursor: pointer;
+  text-align: center;
+  align-items: center;
+  box-shadow: 3px 3px 3px #666;
+}
+.largeIconDiv:hover{
+  background-color: #eee;
+  color: var(--surfacePrimary);
+}
+.selectedlargeIconDiv{
+  position: relative;
+  width:305px;
+  height:208px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  margin:0px 10px 10px 10px;
+  cursor: pointer;
+  background-color: var(--blue);
+  text-align: center;
+  align-items: center;
+  color: var(--iconSecondary);
+  box-shadow: 3px 3px 3px #ddd;
+}
+.largeIconDivI {
+  z-index: 1;
+}
+.largeIconDivText {
+  /*color: #000;*/
+  position: absolute;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  font-size: 16px;
+  white-space: nowrap;
+  bottom: 30px;
+  width: 280px;
+  z-index: 2;
+}
+
+#dropdownOptMenu {
+  position: fixed;
+  top: 3em;
+  right: 1em;
+  width: 200px;
+  display: block;
+  background: var(--surfaceSecondary);
+  box-shadow: 0 0 5px var(--borderPrimary);
+  transform: scale(0);
+  transition: .1s ease-in-out transform;
+  transform-origin: top right;
+  z-index: 20;
+  padding: 10px 10px;
+}
+#dropdownUserMenu {
+  position: fixed;
+  top: 3em;
+  right: 1em;
+  width: 200px;
+  display: block;
+  background: var(--surfaceSecondary);
+  box-shadow: 0 0 5px var(--borderPrimary);
+  transform: scale(0);
+  transition: .1s ease-in-out transform;
+  transform-origin: top right;
+  z-index: 20;
+  padding: 10px 10px;
+}
+.dropdownMenuItem {
+  width: 100%;
+  height: 42px;
+  line-height: 42px;
+  padding-left: 20px;
+}
+.dropdownMenuItem:hover {
+  background: #555;
+  color: var(--blue);
+}
+.dropdownMenuItem i {
+  width: 38px;
+  height: 38px;
+}
