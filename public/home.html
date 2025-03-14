@@ -14,232 +14,215 @@
     <script type="text/javascript" src="js/util.js"></script>
   </head>
   <body>
-    <div id="app" data-v-app="">
     <div class="overlay" style="display: none;"></div>
-    <div>
-      <!--<div class="left-sidebar" id="left-sidebar">-->
-      <nav id="left-sidebar">
-        <!--
-        <ul class="vertical-menu">
-          <li id="my-files"><i class="fa fa-folder"></i><span> 我的文件</span></li>
-          <li id=""><i class="fa fa-folder-plus"></i> 新建文件夹</li>
-          <li id="new-file"><i class="fa fa-file"></i> 新建文件</li>
-          <li id="settings"><i class="fa fa-cog"></i> 设置</li>
-          <li id="logout"><i class="fa fa-sign-out-alt"></i> 退出</li>
-        </ul>-->
-        <button id="my-files" class="action"><i class="fa fa-folder"></i><span id="my-filesSpan">我的文件</span></button>
-        <button id="new-folder" class="action"><i class="fa fa-folder-plus"></i><span id="new-folderSpan">新建文件夹</span></button>
-        <button id="new-file" class="action"><i class="fa fa-file"></i><span id="new-fileSpan">新建文件</span></button>
-        <button id="download-list" class="action"><i class="fa fa-download"></i><span id="downloadListSpan">下载列表</span></button>
-        <button id="upload-list" class="action"><i class="fa fa-upload"></i><span id="uploadListSpan">上传列表</span></button>
-        <button id="share-list" class="action"><i class="fa fa-share-alt"></i><span id="sharedListSpan">共享列表</span></button>
-        <button id="settings" class="action"><i class="fa fa-cog"></i><span id="settingsSpan">设置</span></button>
-        <button id="logout" class="action"><i class="fa fa-sign-out-alt"></i><span id="logoutSpan">退出</span></button>
-        <div class="credits">
-          <div style="background: rgb(238, 238, 238);">
-            <div id="usedDiskSpacePercent" style="background: rgb(33, 150, 243); width: 5%; height: 4px; transition: 0.5s;">
-            </div>
+    <nav id="left-sidebar">
+      <button id="my-files" class="action"><i class="fa fa-folder"></i><span id="my-filesSpan">我的文件</span></button>
+      <button id="new-folder" class="action"><i class="fa fa-folder-plus"></i><span id="new-folderSpan">新建文件夹</span></button>
+      <button id="new-file" class="action"><i class="fa fa-file"></i><span id="new-fileSpan">新建文件</span></button>
+      <button id="download-list" class="action"><i class="fa fa-download"></i><span id="downloadListSpan">下载列表</span></button>
+      <button id="upload-list" class="action"><i class="fa fa-upload"></i><span id="uploadListSpan">上传列表</span></button>
+      <button id="share-list" class="action"><i class="fa fa-share-alt"></i><span id="sharedListSpan">共享列表</span></button>
+      <button id="settings" class="action"><i class="fa fa-cog"></i><span id="settingsSpan">设置</span></button>
+      <button id="logout" class="action"><i class="fa fa-sign-out-alt"></i><span id="logoutSpan">退出</span></button>
+      <div class="credits">
+        <div style="background: rgb(238, 238, 238);">
+          <div id="usedDiskSpacePercent" style="background: rgb(33, 150, 243); width: 5%; height: 4px; transition: 0.5s;">
           </div>
-          <br> <p id="used-space">{usedDiskSpace} of {totalDiskSpace} used </p>
-          <p>
-            <span>
-              <a rel="noopener noreferrer" target="_blank" href="https://github.com/xuqb/fb/filebrowser">File Browser</a>
-            <span id="filebrowserVersion">  {filebrowserVersion}</span>
-            </span>
-            <span>
-              <a id="help">帮助</a>
-            </span>
-          </p>
-        </nav>
-        <!--</div>-->
+        </div>
+        <br> <p id="used-space">{usedDiskSpace} of {totalDiskSpace} used </p>
+        <p>
+          <span>
+            <a rel="noopener noreferrer" target="_blank" href="https://github.com/xuqb/fb/filebrowser">File Browser</a>
+          <span id="filebrowserVersion">  {filebrowserVersion}</span>
+          </span>
+          <span>
+            <a id="help">帮助</a>
+          </span>
+        </p>
       </div>
-      <main>
-        <div>
-          <div id="dirNav" class="navDiv">
-            <div class="homeIcon" style="cursor:pointer;font-size:20px;margin-right:5px;" onclick="currPath='';getFiles();"><i class="fa fa-home"></i></div>
-            <div id="paths" style="display:flex;width:100%;height:48px;line-height:48px;"></div>
+    </nav>
+    <main>
+      <div id="dirNav" class="navDiv">
+        <div class="homeIcon" style="cursor:pointer;font-size:20px;margin-right:5px;" onclick="currPath='';getFiles();"><i class="fa fa-home"></i></div>
+        <div id="paths" style="display:flex;width:100%;height:48px;line-height:48px;"></div>
+      </div>
+      <header><!-- 上部 -->
+        <!--左侧-->
+        <img src="img/logo.svg" style="height:2.5em;margin-right:1em;" id="logoImg" />
+        <div id="search" style="margin-right:auto;">
+          <div id="input">
+            <i class="fa fa-search"></i>
+            <input id="searchInput" type="text" aria-label="搜索..." placeholder="搜索...">
           </div>
+        </div>
+        <!-- 手机模式下显示这个 -->
+        <div class="circleDiv" title="切换侧边栏" id="switchMenulistBtn" style="display:none;margin-right:auto;">
+          <i class="fa fa-bars" alt="切换侧边栏"></i>
+        </div>
+        <!--右侧-->
+        <div class="header-right" id="header-right"><!--  上部右侧 -->
+          <div class="extendHeaderIcons" id="extendHeaderIcons"><!-- 扩展操作按钮 -->
+            <div class="circleDiv" title="共享" id="shareIcon"><i class="fa fa-share-alt" alt="share"></i></div>
+            <div class="circleDiv" title="重命名" id="renameIcon"><i class="fa fa-pen" alt="rename"></i></div>
+            <div class="circleDiv" title="复制" id="copyIcon"><i class="fa fa-copy" alt="copy"></i></div>
+            <div class="circleDiv" title="移动" id="moveIcon"><i class="fa fa-arrow-right" alt="move"></i></div>
+            <div class="circleDiv" title="删除" id="deleteIcon"><i class="fa fa-trash" alt="delete"></i></div>
+          </div>
+          <div class="baseHeaderIcons" id="baseHeaderIcons"><!-- 基本操作按钮 -->
+            <!--<div class="circleDiv" title="激活shell"><i class="fa fa-terminal" alt="shell"></i></div>-->
+            <div class="circleDiv" title="切换到小图标模式" id="switchShowStyleDiv" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i></div>
+            <div class="circleDiv" title="下载" id="downloadIcon" onclick="downloadFiles()">
+              <div class="icon-container">
+                <div class="icon">
+                  <i class="fa fa-chevron-down" alt="download"></i>
+                </div>
+                <div class="badge" id="downloadBadge" style="display:none;"></div>
+              </div>
+            </div>
+            <div class="circleDiv" title="上传" id="uploadIcon"><i class="fa fa-chevron-up" alt="upload"></i></div>
+            <div class="circleDiv" title="信息" id="infoIcon"><i class="fa fa-info-circle"></i></div>
+            <div class="circleDiv" title="选择多个" id="multiselIcon"><i class="fa fa-check-circle"></i></div>
+            <div class="circleDiv" title="用户" id="userIcon"><i class="fa fa-user"></i></div>
+          </div>
+        </div>
+        <!-- 手机模式下，显示这个 -->
+        <div class="header-right" id="header-right1" style="display:none;">
+          <div class="circleDiv" title="搜索" id="searchDiv"><i class="fa fa-search" alt="search"></i></div>
+          <div class="circleDiv" title="更多" id="moreDiv"><i class="fa fa-ellipsis-v" alt="more"></i></div>
+        </div>
+      </header>
+      <div id="dropdownOptMenu"><!--手机模式时，右上角更多图标单击列出下拉操作菜单-->
+        <div class="dropdownMenuItem" title="切换显示方式" id="switchShowStyleDiv1" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i><span>切换显示方式</span></div>
+        <div class="dropdownMenuItem" title="下载" id="downloadIcon1" onclick="downloadFiles()">
+          <div class="icon-container">
+            <div class="icon">
+              <i class="fa fa-chevron-down" alt="download"></i>
+            </div>
+            <div class="badge" id="downloadBadge1" style="display:none;"></div>
+          </div>
+          <span>下载</span>
+        </div>
+        <div class="dropdownMenuItem" title="上传" id="uploadIcon1"><i class="fa fa-chevron-up" alt="upload"></i><span>上传</span></div>
+        <div class="dropdownMenuItem" title="信息" id="infoIcon1"><i class="fa fa-info-circle"></i><span>信息</span></div>
+        <div class="dropdownMenuItem" title="选择多个" id="multiselIcon1"><i class="fa fa-check-circle"></i><span>切换多/单选择</span></div>
+      </div>
+      <div id="dropdownUserMenu"><!-- 电脑上大窗口显示时，右上角用户图标单击下拉显示语言、样式切换菜单 -->
+        <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
+            <label for="languageSelect" class="form-label">语言:</label>
+            <select id="languageSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
+                <option value="sys">随浏览器</option>
+                <option value="en-US">English</option>
+                <option value="zh-CN">中文</option>
+            </select>
+        </div>
+        <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
+            <div for="themeSelect" class="form-label">样式:</div>
+            <select id="themeSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
+                <option value="sys">随系统</option>
+                <option value="light">浅色</option>
+                <option value="dark">深色</option>
+            </select>
+        </div>
+        <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
+            <a href="#" id="settings">设置</a>
+        </div>
+      </div>
+      <div id="file-selection"><!-- 手机模式下，选择文件或文件夹后，显示下方的扩展操作工具条 -->
+        <span id="fileSelNumSpan">选中了{fileSelNum}个</span>
+        <div class="circleDiv" title="共享" id="shareIcon1"><i class="fa fa-share-alt" alt="share"></i></div>
+        <div class="circleDiv" title="重命名" id="renameIcon1"><i class="fa fa-pen" alt="rename"></i></div>
+        <div class="circleDiv" title="复制" id="copyIcon1"><i class="fa fa-copy" alt="copy"></i></div>
+        <div class="circleDiv" title="移动" id="moveIcon1"><i class="fa fa-arrow-right" alt="move"></i></div>
+        <div class="circleDiv" title="删除" id="deleteIcon1"><i class="fa fa-trash" alt="delete"></i></div>
+      </div>
+      <!-- 文件列表页面 -->
+      <div id="listing" class="file-icons list">
+        <div  id="fileListTable" style="display:none;border:1px solid #eee;">
+          <div class="item header" id="fileListTableHeader">
+            <p class="name" role="button" tabindex="0" title="按名称排序" aria-label="按名称排序" onclick="sortTable(0)" id="tableNameColP">
+              <span id="tableNameColSpan">名称</span>
+              <span class="sort-icon">
+                <i class="fa fa-sort-up asc"></i>
+                <i class="fa fa-sort-down desc"></i>
+              </span>
+            </p>
+            <p class="size" role="button" tabindex="0" title="按大小排序" aria-label="按大小排序" onclick="sortTable(1)" id="tableSizeColP"><span id="tableSizeColSpan">大小</span>
+              <span class="sort-icon">
+                <i class="fa fa-sort-up asc"></i>
+                <i class="fa fa-sort-down desc"></i>
+              </span>
+            </p>
+            <p class="modified" role="button" tabindex="0" title="按最后修改时间排序" aria-label="按最后修改时间排序" onclick="sortTable(2)" id="tableModifiedColP">
+              <span id="tableModifiedColSpan">最后修改</span>
+              <span class="sort-icon">
+                <i class="fa fa-sort-up asc"></i>
+                <i class="fa fa-sort-down desc"></i>
+              </span>
+            </p>
+            <p class="shared" role="button" tabindex="0" title="是否已共享" aria-label="按是否已共享排序" onclick="sortTable(3)" id="tableSharedColP">
+              <span id="tableSharedColSpan">已共享</span>
+              <span class="sort-icon">
+                <i class="fa fa-sort-up asc"></i>
+                <i class="fa fa-sort-down desc"></i>
+              </span>
+            </p>
+          </div>
+          <div id="tablebody" class="tablebodyDiv"></div>
+        </div>
+        <div id="main-content" ></div>
+      </div>
+      <div class="settings-page" id="settings-page" style="display:none"><!-- 设置页面 -->
+        设置页面
+      </div>
+      </div>
+      <div class="editfile-page" id="editfile-page" style="display:none"><!-- 编辑文件页面 -->
+      </div>
+      <div class="previewimage-page" id="previewimage-page" style="display:none"><!-- 预览图片页面 -->
+      </div>
+      <div class="search-page" id="search-page" style="display:none"><!-- 搜索选项页面 -->
+        <button aria-label="搜索" title="搜索" id="searchBtn" class="action search-button">
+          <i class="fa fa-search"></i>
+          <span id="searchSpan">搜索</span><!---->
+        </button>
+        <div id="result">
           <div>
-            <header><!-- 上部 -->
-              <img src="img/logo.svg" style="height:2.5em;margin-right:1em;" id="logoImg" />
-
-              <div class="circleDiv" title="切换侧边栏" id="switchMenulistBtn" style="display:none;"><i class="fa fa-bars" alt="切换侧边栏"></i></div>
-              <div id="search" class="">
-                <div id="input">
-                  <i class="fa fa-search"></i>
-                  <input id="searchInput" type="text" aria-label="搜索..." placeholder="搜索...">
+            <p id="searchP">输入以搜索...</p>
+            <div class="boxes">
+              <h3 id="typeH3">类型</h3>
+              <div>
+                <div tabindex="0" role="button" aria-label="图像">
+                  <i class="material-icons"></i>
+                  <p id="imageP">图像</p>
                 </div>
-                <div id="result">
-                  <div>
-                    <p id="searchP">输入以搜索...</p>
-                    <div class="boxes">
-                      <h3 id="typeH3">类型</h3>
-                      <div>
-                        <div tabindex="0" role="button" aria-label="图像">
-                          <i class="material-icons"></i>
-                          <p id="imageP">图像</p>
-                        </div>
-                        <div tabindex="0" role="button" aria-label="音乐">
-                          <i class="material-icons"></i>
-                          <p id="musicP">音乐</p>
-                        </div>
-                        <div tabindex="0" role="button" aria-label="视频">
-                          <i class="material-icons">movie</i>
-                          <p id="videoP">视频</p>
-                        </div>
-                        <div tabindex="0" role="button" aria-label="PDF">
-                          <i class="material-icons">picture_as_pdf</i>
-                          <p id="pdfP">PDF</p>
-                        </div>
-                      </div>
-                    </div>
-                    <ul style="display: none;"></ul>
-                  </div>
-                  <p id="renew">
-                    <i class="material-icons spin">autorenew</i>
-                  </p>
+                <div tabindex="0" role="button" aria-label="音乐">
+                  <i class="material-icons"></i>
+                  <p id="musicP">音乐</p>
                 </div>
-              </div>
-              <title></title>
-              <button aria-label="搜索" title="搜索" id="searchBtn" class="action search-button">
-                <i class="fa fa-search"></i>
-                <span id="searchSpan">搜索</span><!---->
-              </button>
-              <div  id="dropdown"></div>
-              <div class="header-right" id="header-right1" style="display:none;">
-                <div class="circleDiv" title="搜索" id="searchDiv"><i class="fa fa-search" alt="search"></i></div>
-                <div class="circleDiv" title="更多" id="moreDiv"><i class="fa fa-ellipsis-v" alt="more"></i></div>
-              </div>
-              <div class="header-right" id="header-right"><!--  上部右侧 -->
-                <div class="extendHeaderIcons" id="extendHeaderIcons">
-                  <div class="circleDiv" title="共享" id="shareIcon"><i class="fa fa-share-alt" alt="share"></i></div>
-                  <div class="circleDiv" title="重命名" id="renameIcon"><i class="fa fa-pen" alt="rename"></i></div>
-                  <div class="circleDiv" title="复制" id="copyIcon"><i class="fa fa-copy" alt="copy"></i></div>
-                  <div class="circleDiv" title="移动" id="moveIcon"><i class="fa fa-arrow-right" alt="move"></i></div>
-                  <div class="circleDiv" title="删除" id="deleteIcon"><i class="fa fa-trash" alt="delete"></i></div>
+                <div tabindex="0" role="button" aria-label="视频">
+                  <i class="material-icons">movie</i>
+                  <p id="videoP">视频</p>
                 </div>
-                <!-- 基本操作按钮 -->
-                <div class="baseHeaderIcons" id="baseHeaderIcons">
-                  <!--<div class="circleDiv" title="激活shell"><i class="fa fa-terminal" alt="shell"></i></div>-->
-                  <div class="circleDiv" title="切换到小图标模式" id="switchShowStyleDiv" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i></div>
-                  <div class="circleDiv" title="下载" id="downloadIcon" onclick="downloadFiles()">
-                    <div class="icon-container">
-                      <div class="icon">
-                        <i class="fa fa-chevron-down" alt="download"></i>
-                      </div>
-                      <div class="badge" id="downloadBadge" style="display:none;"></div>
-                    </div>
-                  </div>
-                  <div class="circleDiv" title="上传" id="uploadIcon"><i class="fa fa-chevron-up" alt="upload"></i></div>
-                  <div class="circleDiv" title="信息" id="infoIcon"><i class="fa fa-info-circle"></i></div>
-                  <div class="circleDiv" title="选择多个" id="multiselIcon"><i class="fa fa-check-circle"></i></div>
-                  <div class="circleDiv" title="用户" id="userIcon"><i class="fa fa-user"></i></div>
+                <div tabindex="0" role="button" aria-label="PDF">
+                  <i class="material-icons">picture_as_pdf</i>
+                  <p id="pdfP">PDF</p>
                 </div>
-              </div>
-            </header>
-            <div id="dropdownOptMenu">
-              <div class="dropdownMenuItem" title="切换显示方式" id="switchShowStyleDiv1" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i><span>切换显示方式</span></div>
-              <div class="dropdownMenuItem" title="下载" id="downloadIcon1" onclick="downloadFiles()">
-                <div class="icon-container">
-                  <div class="icon">
-                    <i class="fa fa-chevron-down" alt="download"></i>
-                  </div>
-                  <div class="badge" id="downloadBadge1" style="display:none;"></div>
-                </div>
-                <span>下载</span>
-              </div>
-              <div class="dropdownMenuItem" title="上传" id="uploadIcon1"><i class="fa fa-chevron-up" alt="upload"></i><span>上传</span></div>
-              <div class="dropdownMenuItem" title="信息" id="infoIcon1"><i class="fa fa-info-circle"></i><span>信息</span></div>
-              <div class="dropdownMenuItem" title="选择多个" id="multiselIcon1"><i class="fa fa-check-circle"></i><span>切换多/单选择</span></div>
-            </div>
-            
-            <div id="dropdownUserMenu">
-              <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
-                  <label for="languageSelect" class="form-label">语言:</label>
-                  <select id="languageSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
-                      <option value="sys">随浏览器</option>
-                      <option value="en-US">English</option>
-                      <option value="zh-CN">中文</option>
-                  </select>
-              </div>
-              <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
-                  <div for="themeSelect" class="form-label">样式:</div>
-                  <select id="themeSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
-                      <option value="sys">随系统</option>
-                      <option value="light">浅色</option>
-                      <option value="dark">深色</option>
-                  </select>
-              </div>
-              <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
-                  <a href="#" id="settings">设置</a>
               </div>
             </div>
-            <div id="file-selection">
-              <span id="fileSelNumSpan">选中了{fileSelNum}个</span>
-              <div class="circleDiv" title="共享" id="shareIcon1"><i class="fa fa-share-alt" alt="share"></i></div>
-              <div class="circleDiv" title="重命名" id="renameIcon1"><i class="fa fa-pen" alt="rename"></i></div>
-              <div class="circleDiv" title="复制" id="copyIcon1"><i class="fa fa-copy" alt="copy"></i></div>
-              <div class="circleDiv" title="移动" id="moveIcon1"><i class="fa fa-arrow-right" alt="move"></i></div>
-              <div class="circleDiv" title="删除" id="deleteIcon1"><i class="fa fa-trash" alt="delete"></i></div>
-            </div>
+            <ul style="display: none;"></ul>
           </div>
+          <p id="renew">
+            <i class="material-icons spin">autorenew</i>
+          </p>
         </div>
-        <!-- 文件列表页面 -->
-        <div id="listing" class="file-icons list">
-          <div  id="fileListTable" style="display:none;border:1px solid #eee;">
-            <div class="item header" id="fileListTableHeader">
-              <p class="name" role="button" tabindex="0" title="按名称排序" aria-label="按名称排序" onclick="sortTable(0)" id="tableNameColP">
-                <span id="tableNameColSpan">名称</span>
-                <span class="sort-icon">
-                  <i class="fa fa-sort-up asc"></i>
-                  <i class="fa fa-sort-down desc"></i>
-                </span>
-              </p>
-              <p class="size" role="button" tabindex="0" title="按大小排序" aria-label="按大小排序" onclick="sortTable(1)" id="tableSizeColP"><span id="tableSizeColSpan">大小</span>
-                <span class="sort-icon">
-                  <i class="fa fa-sort-up asc"></i>
-                  <i class="fa fa-sort-down desc"></i>
-                </span>
-              </p>
-              <p class="modified" role="button" tabindex="0" title="按最后修改时间排序" aria-label="按最后修改时间排序" onclick="sortTable(2)" id="tableModifiedColP">
-                <span id="tableModifiedColSpan">最后修改</span>
-                <span class="sort-icon">
-                  <i class="fa fa-sort-up asc"></i>
-                  <i class="fa fa-sort-down desc"></i>
-                </span>
-              </p>
-              <p class="shared" role="button" tabindex="0" title="是否已共享" aria-label="按是否已共享排序" onclick="sortTable(3)" id="tableSharedColP">
-                <span id="tableSharedColSpan">已共享</span>
-                <span class="sort-icon">
-                  <i class="fa fa-sort-up asc"></i>
-                  <i class="fa fa-sort-down desc"></i>
-                </span>
-              </p>
-            </div>
-            <div id="tablebody" class="tablebodyDiv"></div>
-          </div>
-          <div id="main-content" ></div>
-        </div>
-        <div class="settings-page" id="settings-page" style="display:none"><!-- 设置页面 -->
-          设置页面
-        </div>
-        </div>
-        <div class="editfile-page" id="editfile-page" style="display:none"><!-- 编辑文件页面 -->
-        </div>
-        <div class="previewimage-page" id="previewimage-page" style="display:none"><!-- 预览图片页面 -->
-        </div>
-        <div class="search-page" id="search-page" style="display:none"><!-- 搜索选项页面 -->
-        </div>
-      </main>
-    </div>
+      </div>
+    </main>
     <!--</div>-->
-
     <!-- 新建文件夹的模态框 -->
     <div id="newFolderModal" class="modal">
       <div class="modal-content">
         <div class="modal-head">
           <div class="modal-title">新建文件夹</div>
-          <span class="close">&times;</span>
+          <span class="close" onclick="closeModal('newFolderModal')">&times;</span>
         </div>
         <form id="newFolderForm" label-position="top">
           <div style="margin-top:20px;">
@@ -260,7 +243,7 @@
       <div class="modal-content">
         <div class="modal-head">
           <div class="modal-title">新建文件</div>
-          <span class="close">&times;</span>
+          <span class="close" onclick="closeModal('newFileModal')">&times;</span>
         </div>
         <form id="newFileForm" label-position="top">
           <div style="margin-top:20px;">
@@ -275,6 +258,56 @@
       </div>
     </div>
 
+     <div id="renameFileModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">文件重命名</div>
+          <span class="close" onclick="closeModal('renameFileModal')">&times;</span>
+        </div>
+        <form id="renameFileForm" label-position="top">
+          <div style="margin-top:20px;">
+            <label for="newfileName">请输入文件新名称:</label>
+            <input type="text" class="normalInput" id="newfileName" required>
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <button type="submit" class="primaryBtn">确定</button>
+            <button type="button" class="normalBtn" onclick="closeModal('renameFileModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <div id="copyFileModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">复制</div>
+          <span class="close" onclick="closeModal('copyFileModal')">&times;</span>
+        </div>
+        <form id="copyFileForm" label-position="top">
+          <div class="card-content" style="margin-top:20px;">
+            <p>请选择目标目录：</p>
+            <div tabindex="1">
+              <ul class="file-list" id="copyFileList">
+                <li role="button" tabindex="0" aria-label="aaa" aria-selected="false" data-url="/files/aaa/">aaa</li>
+                <li role="button" tabindex="0" aria-label="ddd" aria-selected="false" data-url="/files/ddd/">ddd</li>
+                <li role="button" tabindex="0" aria-label="kqh" aria-selected="false" data-url="/files/kqh/">kqh</li>
+                <li role="button" tabindex="0" aria-label="test" aria-selected="false" data-url="/files/test/">test</li>
+                <li role="button" tabindex="0" aria-label="xz" aria-selected="false" data-url="/files/xz/">xz</li>
+                <li role="button" tabindex="0" aria-label="ziptemp" aria-selected="false" data-url="/files/ziptemp/">ziptemp</li>
+              </ul>
+              <p>当前目录： <code id="currPathCode" style="display:none;">/files/</code>
+                <div id="copyPathsDiv" style="display:block;cursor:pointer;"></div>
+              </p>
+            </div>
+            
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <button type="submit" class="primaryBtn">复制</button>
+            <button type="button" class="normalBtn" onclick="closeModal('copyFileModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- 设置的模态框 -->
     <div id="settingsModal" class="modal">
@@ -298,6 +331,7 @@
             </form>
         </div>
     </div>
+    
     <script type="text/javascript" src="js/main.js"></script>
     <script>
       

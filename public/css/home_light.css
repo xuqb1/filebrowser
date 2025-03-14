@@ -44,6 +44,7 @@ body, html {
   padding: 0;
   height: 100%;
   width: 100%;
+  font-size: 16px;
   overflow-x: hidden;
   background-color: var(--background);
 }
@@ -496,10 +497,10 @@ main {
   /*flex: 1;
   background-color: #fafafa;*/
   display: block;
-  min-height: 1em;
+  /*min-height: 1em;*/
   margin: 5em 1em 1em auto;
-  width: calc(100% - 19em);
-  height: 100%;
+  width: calc(100% - 12em);
+  height: calc(100% - 6em);
 }
 /* 下部 右侧  内容区 文件列表的上部导航条*/
 .navDiv {
@@ -876,4 +877,44 @@ main {
   margin-left: 1em;
   color: var(--textPrimary);
   margin-right: auto;
+}
+
+#copyFileModal .modal-content {
+  max-width: 25em;
+  width: 90%;
+}
+.file-list {
+  min-height: 5em;
+  max-height: 35vh;
+  overflow: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border: 1px solid #eee;
+}
+.file-list li[aria-selected=true] {
+  background: var(--blue)!important;
+  color: var(--iconSecondary)!important;
+  transition: .1s ease all;
+}
+.file-list li {
+  width: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  border-radius: .2em;
+  padding: .3em;
+}
+.file-list li:hover {
+  background-color: #eee;
+}
+.folder-icon{
+  color: var(--blue);
+}
+[aria-selected="true"] .folder-icon {
+  color: white;
+}
+#copyPathsDiv span:hover {
+  background-color: #eee;
 }

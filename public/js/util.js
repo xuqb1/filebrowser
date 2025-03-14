@@ -25,9 +25,11 @@ function getByteLength(str) {
   var encoded = encoder.encode(str);
   return encoded.length;
 }
+// 根据id获取dom对象
 function getElById(id){
   return document.getElementById(id);
 }
+// 根据标签名获取匹配的第一个dom对象
 function getElByTag(tagname){
   let els = document.getElementsByTagName(tagname);
   if(els){
@@ -66,6 +68,7 @@ function isDomObj(obj) {
   }
   return obj instanceof HTMLElement;
 }
+// 给dom对象绑定事件响应函数
 function addEvent(element, eventType, callback) {
   // 如果 element 是字符串，通过 ID 获取 DOM 元素
   if (typeof element === 'string') {
@@ -77,7 +80,7 @@ function addEvent(element, eventType, callback) {
   }
   element.addEventListener(eventType, callback);
 }
-
+// 移除dom对象上绑定的事件响应函数
 function removeEvent(element, eventType, callback){
   // 如果 element 是字符串，通过 ID 获取 DOM 元素
   if (typeof element === 'string') {
@@ -89,7 +92,6 @@ function removeEvent(element, eventType, callback){
   }
   element.removeEventListener(eventType, callback);
 }
-
 // 关闭弹出窗口
 function closeModal(id){
   let obj = getElById(id);
@@ -99,6 +101,7 @@ function closeModal(id){
   }
   obj.style.display = 'none';
 }
+// 检查返回的响应内容
 function checkResponse(res,msg){
   let tf = true
   if(isValid(res)==false){
@@ -120,6 +123,7 @@ function checkResponse(res,msg){
   }
   return tf
 }
+// 退出后要执行的操作
 function afterlogout(){
   // 使用 replaceState 来替换当前历史记录，将 URL 修改为登录页面的 URL
   history.replaceState(null, null, '/login');
@@ -130,12 +134,14 @@ function afterlogout(){
   });
   window.location.href = '/login';
 }
+// 格式化文件大小
 function formatFileSize(size){
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
   if (size < 1024 * 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(2)} MB`;
   return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
+// 格式化时间
 function formatDate(dateString) {
   let date = new Date(dateString);
   let year = date.getFullYear();
@@ -146,15 +152,104 @@ function formatDate(dateString) {
   let seconds = String(date.getSeconds()).padStart(2, '0');
   return `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
 }
+// 判断是否是对象
 function isObject(str){
   if( Object.prototype.toString.call(str)=== '[object Object]'){
     return true;
   }
   return false;
 }
+// 判断是否是Dom对象
+function isDom(str){
+  let val = Object.prototype.toString.call(str);
+  if(val.length>12 && val.substring(0, 12)=== '[object HTML'){
+    return true;
+  }
+  return false;
+}
+// 判断是否是字符串
 function isString(str){
   if( Object.prototype.toString.call(str)=== '[object String]'){
     return true;
   }
   return false;
+}
+// 判断是否是文本文件
+function isTextFile(filename){
+  if(filename.length<4){
+    return false;
+  }
+  let laststr = filename.substring(filename.length-4);
+  if(laststr == '.txt' || laststr == '.ini' || laststr.substring(1) == '.js' || laststr == '.cfg' || laststr == '.xml' || laststr == '.yml'){
+    return true;
+  }
+  return false;
+}
+// 判断是否是图片文件
+function isPicFile(filename){
+  if(filename.length<4){
+    return false;
+  }
+  let laststr = filename.substring(filename.length-4);
+  if(laststr == '.bmp' || laststr == '.jpg' || laststr.substring(1) == '.svg' || laststr == '.png' || laststr == '.gif'){
+    return true;
+  }
+  return false;
+}
+// 显示dom对象
+function showDomObj(objid, displayValue){
+  if(isDom(objid)==true){
+    objid.style.display = displayValue;
+    return;
+  }
+  let obj = getElById(objid);
+  if(obj){
+    obj.style.display = displayValue;
+  }
+}
+// 隐藏dom对象
+function hideDomObj(objid){
+  if(isDom(objid)==true){
+    objid.style.display = 'none';
+    return;
+  }
+  let obj = getElById(objid);
+  if(obj){
+    obj.style.display = 'none';
+  }
+}
+// 隐藏列表中所有对象，除了 excludeId 指定的对象
+function hideDomObjsExcludeObj(excludeId, displayValue){
+  let objids = ['dirNav', 'listing', 'main-content', 'editfile-page', 
+      'previewimage-page', 'settings-page'];
+  objids.forEach(item=>{
+    if(item == displayValue){
+      showDomObj(item, displayValue);
+    }else{
+      hideDomObj(item);
+    }
+  })
+}
+// 显示遮盖层
+function showOverlay(){
+  let overlay = document.getElementsByClassName('overlay')[0];
+  if(overlay){
+    showDomObj(overlay, '');
+  }
+}
+// 隐藏遮盖层
+function hideOverlay(){
+  let overlay = document.getElementsByClassName('overlay')[0];
+  if(overlay){
+    hideDomObj(overlay);
+  }
+}
+function startWith(str, firstStr){
+  if(isValid(str)==false || isValid(firstStr)==false){
+    return false;
+  }
+  if(str.length<firstStr.length){
+    return false;
+  }
+  return str.indexOf(firstStr) == 0;
 }

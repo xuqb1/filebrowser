@@ -247,3 +247,103 @@ export function getFolderSize(dirPath) {
     });
   });
 }
+
+export function isFileExist(fullpath){
+ try {
+    fs.statSync(fullpath);
+    return true;
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return false;
+    }
+    throw error;
+  }
+}
+export function getFileSize(file){
+  try {
+    const stats = fs.statSync(file);
+    return stats.size;
+    //const fileSizeInBytes = stats.size;
+    //console.log(`文件大小为: ${fileSizeInBytes} 字节`);
+  } catch (err) {
+    console.error('获取文件信息时出错:', err);
+    return null;
+  }
+}
+// 检查文件或文件夹是否存在，若存在则返回重命名后的路径
+export function getUniquePath(targetDir, fullSourcePath) {
+  let baseName = path.basename(fullSourcePath);
+  let ext = path.extname(baseName);
+  let nameWithoutExt = baseName.slice(0, -ext.length);
+  let counter = 1;
+  let newName = baseName;
+  let newPath = path.join(targetDir, newName);
+
+  while (fs.existsSync(newPath)) {
+    newName = `${nameWithoutExt} (${counter})${ext}`;
+    newPath = path.join(targetDir, newName);
+    counter++;
+  }
+
+  return newPath;
+}
+// 同步复制文件
+export function copyFileSync(sourcePath, destinationDir) {
+    let uniqueDestinationPath = getUniquePath(destinationDir, sourcePath);
+    try {
+        fs.copyFileSync(sourcePath, uniqueDestinationPath);
+        console.log(`文件 ${sourcePath} 已复制到 ${uniqueDestinationPath}`);
+    } catch (err) {
+        console.error(`复制文件 ${sourcePath} 时出错:`, err);
+        return false;
+    }
+    return true;
+}
+
+// 同步递归复制文件夹
+export function copyDirectorySync(sourceDir, destinationDir) {
+    try {
+        let uniqueDestinationDir = getUniquePath(destinationDir, sourceDir);
+        if (!fs.existsSync(uniqueDestinationDir)) {
+            fs.mkdirSync(uniqueDestinationDir, { recursive: true });
+        }
+        const entries = fs.readdirSync(sourceDir, { withFileTypes: true });
+        let tf = true;
+        for (const entry of entries) {
+            const sourcePath = path.join(sourceDir, entry.name);
+            if (entry.isDirectory()) {
+                tf = copyDirectorySync(sourcePath, uniqueDestinationDir);
+            } else {
+                tf = copyFileSync(sourcePath, uniqueDestinationDir);
+            }
+            if(tf == false){
+              return tf;
+            }
+        }
+        console.log(`文件夹 ${sourceDir} 已复制到 ${uniqueDestinationDir}`);
+    } catch (err) {
+        console.error(`复制文件夹 ${sourceDir} 时出错:`, err);
+        return false;
+    }
+    return true;
+}
+
+// 主函数，根据源路径是文件还是文件夹调用不同的复制函数
+export function copySourceToDestinationSync(source, destination) {
+    try {
+        const stats = fs.statSync(source);
+        let tf = true;
+        if (stats.isFile()) {
+            tf = copyFileSync(source, destination);
+        } else if (stats.isDirectory()) {
+            tf = copyDirectorySync(source, destination);
+        }
+        if(tf == false){
+          return tf;
+        }
+    } catch (err) {
+        console.error(`检查源路径 ${source} 时出错:`, err);
+        return false;
+    }
+    return true;
+}

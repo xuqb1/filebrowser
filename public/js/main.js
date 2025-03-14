@@ -9,6 +9,25 @@ var fileListSort = {
 }
 var navpathArr = [];
 var userInfo = JSON.parse(sessionStorage.getItem('user'));
+let root = document.documentElement;
+let computedStyle = getComputedStyle(root);
+let backgroundColor = computedStyle.getPropertyValue('--surfacePrimary');//background
+let textColor = computedStyle.getPropertyValue('--textPrimary');
+let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+let selMenuId = 'my-files';
+let colIndexName = {
+  0: 'name',
+  1: 'size',
+  2: 'modified',
+  3: 'shared' 
+}
+// 已用，全部空间，版本及已用空间占比
+let diskSpace = {
+  usedDiskSpace: 0, 
+  totalDiskSpace: 0, 
+  filebrowserVersion: '0.1'
+}
+let usedDiskSpacePercent = 0;
 //切换文件，文件夹的选择与不选
 function toggleSelect(id){
   let type = id.substring(0,id.indexOf('_'))
@@ -59,36 +78,36 @@ function toggleSelect(id){
 function selectedAfter(){
   if(window.innerWidth<737){
     if(selectedFiles.length<=0){
-      getElById('file-selection').style.display='none';
-      getElById('downloadBadge1').style.display='none';
+      hideDomObj('file-selection');
+      hideDomObj('downloadBadge1');
     }else{
-      getElById('file-selection').style.display='flex';
+      showDomObj('file-selection', 'flex');
       if(selectedFiles.length > 1){
-        getElById('shareIcon1').style.display = 'none';
-        getElById('renameIcon1').style.display = 'none';
+        hideDomObj('shareIcon1');
+        hideDomObj('renameIcon1');
       }else{
-        getElById('shareIcon1').style.display = '';
-        getElById('renameIcon1').style.display = '';
+        showDomObj('shareIcon1', '');
+        showDomObj('renameIcon1', '');
       }
-      getElById('downloadBadge1').style.display='';
+      showDomObj('downloadBadge1', '');
       getElById('downloadBadge1').innerHTML=selectedFiles.length;
       switchLangAndReplaceVar('fileSelNumSpan', 'fileSelNum', selectedFiles.length)
     }
     return;
   }
   if(selectedFiles.length<=0){
-    getElById('extendHeaderIcons').style.display='none';
-    getElById('downloadBadge').style.display='none';
+    hideDomObj('extandHeaderIcons');
+    hideDomObj('downloadBadge');
   }else{
-    getElById('extendHeaderIcons').style.display='flex';
+    showDomObj('extendHeaderIcons', 'flex');
     if(selectedFiles.length > 1){
-      getElById('shareIcon').style.display = 'none';
-      getElById('renameIcon').style.display = 'none';
+      hideDomObj('shareIcon');
+      hideDomObj('renameIcon');
     }else{
-      getElById('shareIcon').style.display = '';
-      getElById('renameIcon').style.display = '';
+      showDomObj('shareIcon', '');
+      showDomObj('renameIcon', '')
     }
-    getElById('downloadBadge').style.display='';
+    showDomObj('downloadBadge', '');
     getElById('downloadBadge').innerHTML=selectedFiles.length;
   }
 }
@@ -116,12 +135,6 @@ function openDir(dirname){
   pathsNav.innerHTML = divStr;
   getFiles();        	
 }
-let root = document.documentElement;
-let computedStyle = getComputedStyle(root);
-let backgroundColor = computedStyle.getPropertyValue('--surfacePrimary');//background
-let textColor = computedStyle.getPropertyValue('--textPrimary');
-let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-let selMenuId = 'my-files';
 //console.log(isDarkMode);
 //获取文件夹、文件
 async function getFiles(){
@@ -146,7 +159,8 @@ async function getFiles(){
   fileList = res.data.fileList;
   showFileList();
 }
-
+// 左侧功能菜单列表中的除了 新建文件夹、新建文件、退出之外的菜单项，单击切换时，
+// 要对其他菜单项进行释放选中刷新
 function releaseSelStatus(excludeId){
   let ids = ['my-files', 'download-list', 'upload-list', 'share-list', 'settings']
   //console.log('L132 excludeId=',excludeId, Object.prototype.toString.call(excludeId));
@@ -175,11 +189,10 @@ function releaseSelStatus(excludeId){
       addEvent(obj, 'mouseleave', menuMouseLeaveBgColor);
     }
   })
-  
 }
-//清除文件表格再增加行
+// 清除文件表格再增加行
 function clearAndAddRows(){
-  var fileListTable = getElById('fileListTable');
+  //var fileListTable = getElById('fileListTable');
   //var tableBody = fileListTable.querySelector('tbody');//getElById('tableBody');
   var tableBody = getElById('tablebody');
   tableBody.innerHTML = ''; // 清除现有行
@@ -200,15 +213,14 @@ function clearAndAddRows(){
        tableBody.innerHTML += newRow;
     }
   }
-  fileListTable.style.display = '';
+  showDomObj('fileListTable', '');
 }
-//根据文件列表显示方式显示相应的文件列表
+// 根据文件列表显示方式显示相应的文件列表
 function showFileList(){
   let mainContent = getElById('main-content');
-  let fileListTable = getElById('fileListTable');
   let windowHeight = window.innerHeight;
-  mainContent.style.display = '';
-  fileListTable.style.display = 'none';
+  showDomObj('main-content', '');
+  hideDomObj('fileListTable');
   selectedFiles = [];
   selectedAfter();
   
@@ -221,7 +233,7 @@ function showFileList(){
   }
   //console.log('L341 listStyle='+listStyle);
   if(listStyle == 'detail'){
-    mainContent.style.display = 'none';
+    hideDomObj('main-content');
     clearAndAddRows();
     switchWinOrPhone();
     return;
@@ -322,7 +334,7 @@ function showFileList(){
     }
   }
 }
-//获取文件图标的html代码
+// 获取文件图标的html代码
 function getFileIconHtml(file,size){
   if(isTextFile(file.name)==true){
     if(size==128){
@@ -350,35 +362,7 @@ function getFileIconHtml(file,size){
   }
   return '<i class="fa fa-file" style="font-size:'+size+'px;"></i>'
 }
-//判断是否是文本文件
-function isTextFile(filename){
-  if(filename.length<4){
-    return false;
-  }
-  let laststr = filename.substring(filename.length-4);
-  if(laststr == '.txt' || laststr == '.ini' || laststr.substring(1) == '.js' || laststr == '.cfg' || laststr == '.xml' || laststr == '.yml'){
-    return true;
-  }
-  return false;
-}
-//判断是否是图片文件
-function isPicFile(filename){
-  if(filename.length<4){
-    return false;
-  }
-  let laststr = filename.substring(filename.length-4);
-  if(laststr == '.bmp' || laststr == '.jpg' || laststr.substring(1) == '.svg' || laststr == '.png' || laststr == '.gif'){
-    return true;
-  }
-  return false;
-}
 // 切换文件夹、文件列表显示样式
-let colIndexName = {
-  0: 'name',
-  1: 'size',
-  2: 'modified',
-  3: 'shared' 
-}
 function switchShowStyle(){
   let divObj = getElById('switchShowStyleDiv');
   selectedFiles = [];
@@ -398,7 +382,7 @@ function switchShowStyle(){
   }
   showFileList();
 }
-//文件表格表头
+// 文件表格按表头排序
 function sortTable(n){
   if(n==fileListSort.type){
     fileListSort.asc = !fileListSort.asc;
@@ -430,8 +414,12 @@ function sortTable(n){
   }
   switchSortIcon(n);
   clearAndAddRows();
+  selectedFiles = [];
+  switchWinOrPhone();
+  hideDomObj('file-selection');
+  selectedAfter();
 }
-//切换排序图标
+// 切换排序图标
 function switchSortIcon(n){
   hideSortIcon('fileListTable');
   let tableObj = getElById('fileListTableHeader');
@@ -439,25 +427,25 @@ function switchSortIcon(n){
   let sortIcon = th.querySelector('.sort-icon');
   let ascIcon = sortIcon.querySelector('.asc');
   let descIcon = sortIcon.querySelector('.desc');
-  //console.log('L608 fileListSort=', fileListSort);
   if(fileListSort.asc == true){
-    ascIcon.style.display = 'inline-block';
+    showDomObj(ascIcon, 'inline-block');
   }else{
-    descIcon.style.display = 'inline-block';
+    showDomObj(descIcon, 'inline-block');
   }
-  sortIcon.style.display = '';
+  showDomObj(sortIcon, '');
+  switchWinOrPhone();
 }
-//隐藏排序图标
+// 隐藏排序图标
 function hideSortIcon(id){
   let tableObj = getElById('fileListTableHeader');
   let thObjs = tableObj.querySelectorAll('p');
   for(let i=0;i<thObjs.length;i++){
-    thObjs[i].querySelector('.sort-icon').style.display = 'none';
-    thObjs[i].querySelector('.asc').style.display = 'none';
-    thObjs[i].querySelector('.desc').style.display = 'none';
+    hideDomObj(thObjs[i].querySelector('.sort-icon'));
+    hideDomObj(thObjs[i].querySelector('.asc'));
+    hideDomObj(thObjs[i].querySelector('.desc'));
   }
 }
-//下载文件
+// 下载文件
 async function downloadFiles(){
   if(!selectedFiles || selectedFiles.length<=0){
     alert('请先选择要下载的文件或文件夹');
@@ -514,13 +502,14 @@ async function downloadFiles(){
     return;
   }*/
 }
-
+// 左侧功能菜单项的鼠标悬停事件绑定函数
 function menuMouseOverBgColor(){
   this.style.backgroundColor = '#e1e1e1';
   if(isDarkMode){
     this.style.color = backgroundColor;
   }
 }
+// 左侧功能菜单项的鼠标移开事件绑定函数
 function menuMouseLeaveBgColor(){
   this.style.backgroundColor = backgroundColor;//'#fafafa';
   this.style.color = textColor;
@@ -539,11 +528,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const folderModal = getElById('newFolderModal');
   const fileModal = getElById('newFileModal');
   const settingsModal = getElById('settingsModal');
-  const folderSpan = document.getElementsByClassName("close")[0];
-  const fileSpan = document.getElementsByClassName("close")[1];
-  const settingsSpan = document.getElementsByClassName("close")[2];
   const fileListTable = getElById("fileListTable");
   const switchMenuListBtn = getElById("switchMenulistBtn");
+  
+  const renameFileModal = getElById("renameFileModal");
+  const copyFileModal = getElById("copyFileModal");
+  
+  const renameIcon = getElById("renameIcon");
+  const renameIcon1 = getElById("renameIcon1");
+  const copyIcon = getElById("copyIcon");
+  const copyIcon1 = getElById("copyIcon1");
   
   const userIcon = getElById("userIcon");
   
@@ -552,19 +546,19 @@ document.addEventListener('DOMContentLoaded', function () {
   
   // 单击左侧我的文件菜单项，刷新当前目录下的文件夹和文件列表
   myFiles.addEventListener('click', function () {
-    getElById('dirNav').style.display = 'flex';
-    getElById('listing').style.display = '';
-    getElById('main-content').style.display = 'flex';
-    getElById('editfile-page').style.display = 'none';
-    getElById('previewimage-page').style.display = 'none';
-    getElById('settings-page').style.display = 'none';
+    showDomObj('dirNav', 'flex');
+    showDomObj('listing', '');
+    showDomObj('main-content', 'flex');
+    hideDomObj('editfile-page');
+    hideDomObj('previewimage-page');
+    hideDomObj('settings-page');
     selMenuId = 'my-files';
     getFiles();
   });
   
   // 单击左侧新建文件夹菜单项，弹出要求输入新文件夹名称的窗口
   newFolder.addEventListener('click', function () {
-    folderModal.style.display = "block";
+    showDomObj(folderModal, 'block');
   });
 
   // 新建文件夹窗口，确定按钮单击响应
@@ -587,7 +581,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     if(res.result == true){
-      folderModal.style.display = "none";
+      hideDomObj(folderModal);
       // 刷新文件列表
       myFiles.click();
       let fullPath = folderName;
@@ -602,73 +596,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 单击左侧新建文件菜单项，弹出要求输入新文件名称的窗口
   newFile.addEventListener('click', function () {
-    fileModal.style.display = "block";
+    showDomObj(fileModal, 'block');
   });
   
-  userIcon.addEventListener('click', function () {
-    let obj = getElById('dropdownUserMenu');
-    if(obj){
-      if(obj.style.transform == 'scale(1)'){
-        obj.style.transform = 'scale(0)';
-      }else{
-        obj.style.transform = 'scale(1)';
-      }
-    }
-  });
-  moreDiv.addEventListener('click', function () {
-    let obj = getElById('dropdownOptMenu');
-    if(obj){
-      if(obj.style.transform == 'scale(1)'){
-        obj.style.transform = 'scale(0)';
-      }else{
-        obj.style.transform = 'scale(1)';
-      }
-    }
-  });
-  switchMenulistBtn.addEventListener('click', function(){
-    let menulist = getElById('left-sidebar');
-    let overlay = document.getElementsByClassName('overlay')[0];
-    console.log('L631 overlay=', overlay);
-    if(menulist){
-      if(menulist.style.display=='none'){
-        menulist.className = 'active';
-        menulist.style.display = '';
-        menulist.style.top = '0';
-        menulist.style.height= '100%';
-        overlay.style.display = '';
-      }else{
-        menulist.className = '';
-        menulist.style.display = 'none';
-        menulist.style.top = '4em';
-        overlay.style.display = 'none';
-      }
-      
-    }
-  })
-  // 点击页面其他地方隐藏菜单
-  document.addEventListener('click', function (event) {
-    let obj = getElById('dropdownUserMenu');
-    if (obj && !userIcon.contains(event.target) && !obj.contains(event.target)) {
-      obj.style.transform = 'scale(0)';
-    }
-    obj = getElById('dropdownOptMenu');
-    if (obj && !moreDiv.contains(event.target)){ // && !obj.contains(event.target)) {
-      obj.style.transform = 'scale(0)';
-    }
-    let overlay = document.getElementsByClassName('overlay')[0];
-    obj = getElById('left-sidebar');
-    if(obj && !switchMenuListBtn.contains(event.target)) {
-      //console.log('L660 obj.style.display='+obj.style.display);
-      if(obj.style.display == '' && window.innerWidth < 737){
-        obj.style.display = 'none';
-        obj.style.top = '4em';
-        obj.className = '';
-        if(overlay){
-          overlay.style.display = 'none';
-        }
-      }
-    }
-  });
   // 新建文件窗口，确定按钮单击响应
   newFileModal.querySelector('form').addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -692,13 +622,188 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     if(res.result == true){
-      fileModal.style.display = "none";
+      hideDomObj(fileModal);
       // 刷新文件列表
       myFiles.click();
     }else{
       alert('创建文件失败.');
     }
   });
+  
+  // 单击重命名图标，弹出要求输入新名称窗口
+  renameIcon.addEventListener('click', function () {
+    showDomObj(renameFileModal, 'block');
+    getElById('newfileName').value = selectedFiles[0].name;
+  });
+  renameIcon1.addEventListener('click', function () {
+    showDomObj(renameFileModal, 'block');
+    getElById('newfileName').value = selectedFiles[0].name;
+  });
+  
+  // 重命名文件窗口，确定按钮单击响应
+  renameFileModal.querySelector('form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const fileName = getElById('newfileName').value.trim();
+    //const username = sessionStorage.getItem('username');
+    if(fileName == ''){
+      getElById('newfileName').value = selectedFile[0].name;
+      hideDomObj(renameFileModal);
+      return;
+    }
+    if(fileName == selectedFiles[0].name){
+      hideDomObj(renameFileModal);
+      return;
+    }
+    let dir = dirList.find(x=>x.name == fileName);
+    let file = fileList.find(x=>x.name == fileName);
+    if(dir || file){
+      alert('新名称命名的文件或文件夹已存在');
+      return;
+    }
+    let data = {
+      oldFileName: selectedFiles[0].name, 
+      fileName: fileName,
+      currPath: currPath
+    }
+    let res = await fetchDataPost('renameFile', data);
+    if(checkResponse(res, '')==false){
+      if(res && res.msg == 'need re-login'){
+        afterlogout();
+        return;
+      }
+      alert('创建文件失败');
+      return;
+    }
+    if(res.result == true){
+      hideDomObj(renameFileModal);
+      // 刷新文件列表
+      myFiles.click();
+      alert('重命名成功.');
+    }else{
+      alert('重命名文件失败.');
+    }
+  });
+  
+  // 单击复制图标，弹出要求选择目标目录窗口
+  copyIcon.addEventListener('click', function () {
+    showDomObj('copyFileModal', 'block');
+    listDirForSel();
+  });
+  copyIcon1.addEventListener('click', function () {
+    showDomObj('copyFileModal', 'block');
+    listDirForSel();
+  });
+  
+  // 重命名文件窗口，确定按钮单击响应
+  copyFileModal.querySelector('form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    let copyFileList = getElById('copyFileList');
+    let allLis = copyFileList.querySelectorAll('li');
+    let selPath = '';
+    for(let i=0;i<allLis.length;i++){
+      if(allLis[i].getAttribute('aria-selected')=='true'){
+        selPath = allLis[i].getAttribute('aria-label');
+      }
+    }
+    let copyPathsDir = getElById('copyPathsDiv');
+    let allPathSpan = copyPathsDir.querySelectorAll('span');
+    let fullPath = allPathSpan[allPathSpan.length-1].getAttribute('aria-label');
+    if(isValid(selPath) == true){
+      fullPath += '/' + selPath;
+    }
+    console.log('L714 fullPath='+fullPath);
+    console.log('L715 selectedFiles=', selectedFiles);
+    console.log('L716 userInfo=', userInfo);
+    let data = {
+      selectedFiles: selectedFiles, 
+      destDir: fullPath
+    }
+    let res = await fetchDataPost('copyFiles', data);
+    if(checkResponse(res, '')==false){
+      if(res && res.msg == 'need re-login'){
+        afterlogout();
+        return;
+      }
+      alert('复制失败');
+      return;
+    }
+    if(res.result == true){
+      hideDomObj(copyFileModal);
+      // 刷新文件列表
+      //myFiles.click();
+      alert('复制成功.');
+    }else{
+      alert('复制失败.');
+    }
+  });
+  
+  // 用户图标，单击响应，弹出下拉菜单
+  userIcon.addEventListener('click', function () {
+    let obj = getElById('dropdownUserMenu');
+    if(obj){
+      if(obj.style.transform == 'scale(1)'){
+        obj.style.transform = 'scale(0)';
+      }else{
+        obj.style.transform = 'scale(1)';
+      }
+    }
+  });
+  // 更多图标，单击响应，弹出下拉菜单
+  moreDiv.addEventListener('click', function () {
+    let obj = getElById('dropdownOptMenu');
+    if(obj){
+      if(obj.style.transform == 'scale(1)'){
+        obj.style.transform = 'scale(0)';
+      }else{
+        obj.style.transform = 'scale(1)';
+      }
+    }
+  });
+  // 显示功能菜单列表按钮，单击响应
+  switchMenulistBtn.addEventListener('click', function(){
+    let menulist = getElById('left-sidebar');
+    if(menulist){
+      if(menulist.style.display=='none'){
+        menulist.className = 'active';
+        showDomObj(menulist, '');
+        menulist.style.top = '0';
+        menulist.style.height= '100%';
+        showOverlay();
+      }else{
+        menulist.className = '';
+        hideDomObj(menulist);
+        menulist.style.top = '4em';
+        hideOverlay()
+      }
+    }
+  })
+  // 点击页面其他地方隐藏用户下拉菜单或操作下拉菜单
+  document.addEventListener('click', function (event) {
+    let obj = getElById('dropdownUserMenu');
+    if (obj && !userIcon.contains(event.target) && !obj.contains(event.target)) {
+      obj.style.transform = 'scale(0)';
+    }
+    obj = getElById('dropdownOptMenu');
+    if (obj && !moreDiv.contains(event.target)){ // && !obj.contains(event.target)) {
+      obj.style.transform = 'scale(0)';
+    }
+    let overlay = document.getElementsByClassName('overlay')[0];
+    obj = getElById('left-sidebar');
+    if(obj && !switchMenuListBtn.contains(event.target)) {
+      //console.log('L660 obj.style.display='+obj.style.display);
+      if(obj.style.display == '' && window.innerWidth < 737){
+        hideDomObj(obj);
+        obj.style.top = '4em';
+        obj.className = '';
+        if(overlay){
+          hideDomObj(overlay);
+        }
+      }
+    }
+  });
+  
+  
+  
   // 左侧设置菜单项，单击响应：切换我的文件与设置菜单项的选择
   settings.addEventListener('click', function () {
     settings.style.backgroundColor = '#1d99f3';
@@ -706,12 +811,7 @@ document.addEventListener('DOMContentLoaded', function () {
     removeEvent(settings, 'mouseover', menuMouseOverBgColor);
     removeEvent(settings, 'mouseleave', menuMouseLeaveBgColor);
     releaseSelStatus('settings')
-    getElById('dirNav').style.display = 'none';
-    getElById('listing').style.display = 'none';
-    getElById('main-content').style.display = 'none';
-    getElById('editfile-page').style.display = 'none';
-    getElById('previewimage-page').style.display = 'none';
-    getElById('settings-page').style.display = '';
+    hideDomObjExcludeObj('settings-page', '');
   });
   // 下载列表菜单项，单击响应，显示已下载/正在下载列表
   downloadList.addEventListener('click', function () {
@@ -834,59 +934,39 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(error => console.error('Error:', error));
   });
 
-  // 新建文件夹窗口的右上角关闭图标单击
-  folderSpan.onclick = function () {
-    folderModal.style.display = "none";
-  };
-
-  // 新建文件窗口的右上角关闭图标单击
-  fileSpan.onclick = function () {
-    fileModal.style.display = "none";
-  };
-
-  // 
-  settingsSpan.onclick = function () {
-    settingsModal.style.display = "none";
-  };
 
   // 窗口单击，如果有弹出窗口，则关闭
   window.onclick = function (event) {
     if (event.target == folderModal) {
-      folderModal.style.display = "none";
+      hideDomObj(folderModal);
     }
     if (event.target == fileModal) {
-      fileModal.style.display = "none";
+      hideDomObj(fileModal);
+    }
+    if (event.target == renameFileModal) {
+      hideDomObj(renameFileModal);
+    }
+    if (event.target == getElById('copyFileModal')) {
+      hideDomObj('copyFileModal');
+    }
+    if (event.target == getElById('moveFileModal')) {
+      hideDomObj('moveFileModal');
     }
     if (event.target == settingsModal) {
-      settingsModal.style.display = "none";
+      hideDomObj(settingsModal);
     }
   };
   resizeOrLoad();
 });
-
-// 几个全局变量
-let diskSpace = {
-  usedDiskSpace: 0, 
-  totalDiskSpace: 0, 
-  filebrowserVersion: '0.1'
-}
-let usedDiskSpacePercent = 0;
-// 调整大小
+// 窗口调整大小
 window.addEventListener('resize', async function() {
-  //console.log('网页大小被调整了');
-  // 在这里可以添加你需要执行的操作
   resizeOrLoad();
 });
 // 页面加载完成后执行
 window.addEventListener('load', async function() {
-  //console.log('整个页面已加载完成');
-  // 在这里添加初始加载后要执行的操作
   resizeOrLoad();
 });
 let mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-// 初始检查系统主题模式
-//handleColorSchemeChange(mediaQuery);
-
 // 监听媒体查询的变化
 if (mediaQuery.addEventListener) {
   // 现代浏览器支持 addEventListener
@@ -894,6 +974,178 @@ if (mediaQuery.addEventListener) {
 } else {
   // 旧版浏览器支持 addListener
   mediaQuery.addListener(releaseSelStatus);
+}
+// 为移动或复制文件、文件夹，对弹出窗口中的目录列表及路径导航条进行加载
+function listDirForSel(){
+  let copyFileList = getElById('copyFileList');
+  copyFileList.innerHTML = '';
+  let copyPathsDiv = getElById('copyPathsDiv');
+  copyPathsDiv.innerHTML = '';
+  let subpathDiv = document.createElement('span');
+  subpathDiv.setAttribute('aria-label', '');
+  subpathDiv.innerHTML = '根目录/';
+  subpathDiv.addEventListener('click', function(){
+    console.log(this.getAttribute('aria-label'));
+    setNewFolderListByPath('');
+  });
+  copyPathsDiv.appendChild(subpathDiv);
+  // 创建多个 li 元素
+  dirList.forEach(item=>{
+    const li = document.createElement('li');
+    // 创建图标元素
+    const icon = document.createElement('i');
+    icon.classList.add('fa','fa-folder', 'folder-icon');
+    icon.style.fontSize = '28px';
+    //icon.style.color = '#1d99f3';
+    icon.style.marginRight = '5px';
+    // 将图标添加到 li 中
+    li.appendChild(icon);
+    const textNode = document.createTextNode(item.name);
+    li.appendChild(textNode);
+
+    li.setAttribute('aria-selected', 'false');
+    li.setAttribute('aria-label', item.name);
+    // 为 li 元素添加点击事件监听器
+    li.addEventListener('click', function () {
+      const allLis = copyFileList.querySelectorAll('li');
+      // 遍历所有 li 元素，将其 aria-selected 属性设为 false
+      const isSelected = this.getAttribute('aria-selected') === 'true';
+      allLis.forEach(item => {
+        item.setAttribute('aria-selected', 'false');
+      });
+      this.setAttribute('aria-selected',!isSelected);
+    });
+    // 为 li 元素添加双击事件监听器
+    li.addEventListener('dblclick', async function () {
+      console.log(`你双击了 ${this.getAttribute('aria-label')} 项`);
+      // 这里可以添加双击时要执行的其他操作
+      copyFileList.innerHTML = '';
+      let subpathDiv = document.createElement('span');
+      subpathDiv.setAttribute('aria-label', copyPathsDiv.children[copyPathsDiv.children.length-1].getAttribute('aria-label')+'/' + this.getAttribute('aria-label'));
+      subpathDiv.innerHTML = this.getAttribute('aria-label') + '/';
+      subpathDiv.addEventListener('click', function(){
+        console.log(this.getAttribute('aria-label'));
+        setNewFolderListByPath(this.getAttribute('aria-label'));
+      });
+      copyPathsDiv.appendChild(subpathDiv);
+      let res = await fetchDataPost('files',{'currPath':subpathDiv.getAttribute('aria-label')});
+      if(checkResponse(res, '')==false){
+        if(res && res.msg == 'need re-login'){
+          afterlogout();
+          return;
+        }
+        alert('获取子文件夹、文件失败');
+        return;
+      }
+      if(currPath == ''){
+        getElById('paths').innerHTML = '';
+      }
+      let subdirList = res.data.dirList;
+      if(subdirList && subdirList.length>0){
+        setNewFolderList(subdirList);
+      }
+    });
+    // 将 li 元素添加到 ul 中
+    copyFileList.appendChild(li);
+  })
+}
+// 复制文件或文件夹窗口中，文件夹列表，文件夹双击，根据新路径进行获取
+function setNewFolderList(newFolderList){
+  let copyFileList = getElById('copyFileList');
+  newFolderList.forEach(item=>{
+    const li = document.createElement('li');
+    // 创建图标元素
+    const icon = document.createElement('i');
+    icon.classList.add('fa','fa-folder', 'folder-icon');
+    icon.style.fontSize = '28px';
+    //icon.style.color = '#1d99f3';
+    icon.style.marginRight = '5px';
+    // 将图标添加到 li 中
+    li.appendChild(icon);
+    const textNode = document.createTextNode(item.name);
+    li.appendChild(textNode);
+
+    li.setAttribute('aria-selected', 'false');
+    li.setAttribute('aria-label', item.name);
+    // 为 li 元素添加点击事件监听器
+    li.addEventListener('click', function () {
+      const allLis = copyFileList.querySelectorAll('li');
+      // 遍历所有 li 元素，将其 aria-selected 属性设为 false
+      const isSelected = this.getAttribute('aria-selected') === 'true';
+      allLis.forEach(item => {
+        item.setAttribute('aria-selected', 'false');
+      });
+      this.setAttribute('aria-selected',!isSelected);
+    });
+    // 为 li 元素添加双击事件监听器
+    li.addEventListener('dblclick', async function () {
+      console.log(`你双击了 ${this.textContent.trim()} 项`);
+      // 这里可以添加双击时要执行的其他操作
+      let copyPathsDiv = getElById('copyPathsDiv');
+      let subpathDiv = document.createElement('span');
+      subpathDiv.setAttribute('aria-label', copyPathsDiv.children[copyPathsDiv.children.length-1].getAttribute('aria-label')+'/' + this.textContent.trim());
+      subpathDiv.innerHTML = this.textContent.trim() + '/';
+      subpathDiv.addEventListener('click', function(){
+        console.log(this.getAttribute('aria-label'))
+        setNewFolderListByPath(this.getAttribute('aria-label'));
+      });
+      copyPathsDiv.appendChild(subpathDiv);
+      copyFileList.innerHTML = '';
+      let res = await fetchDataPost('files',{'currPath':subpathDiv.getAttribute('aria-label')});
+      if(checkResponse(res, '')==false){
+        if(res && res.msg == 'need re-login'){
+          afterlogout();
+          return;
+        }
+        alert('获取子文件夹、文件失败');
+        return;
+      }
+      if(currPath == ''){
+        getElById('paths').innerHTML = '';
+      }
+      let subdirList = res.data.dirList;
+      if(subdirList && subdirList.length>0){
+        setNewFolderList(subdirList);
+        //copyFileList.appendChild(li);
+      }
+    });
+
+    // 将 li 元素添加到 ul 中
+    copyFileList.appendChild(li);
+  })
+}
+// 路径导航条中任一路径被单击后，将操作路径设置为被单击路径，并更新文件夹列表
+async function setNewFolderListByPath(path){
+  let copyPathsDiv = getElById('copyPathsDiv');
+  const allSpan = copyPathsDiv.querySelectorAll('span');
+  let pos = -1;
+  for(let i=0;i<allSpan.length;i++){
+    if(allSpan[i].getAttribute('aria-label')==path){
+      pos = i;
+      break;
+    }
+  }
+  for(let i=allSpan.length-1;i>pos;i--){
+    copyPathsDiv.removeChild(allSpan[i]);
+  }
+  let copyFileList = getElById('copyFileList');
+  copyFileList.innerHTML = '';
+  let res = await fetchDataPost('files',{'currPath':path});
+  if(checkResponse(res, '')==false){
+    if(res && res.msg == 'need re-login'){
+      afterlogout();
+      return;
+    }
+    alert('获取子文件夹、文件失败');
+    return;
+  }
+  if(currPath == ''){
+    getElById('paths').innerHTML = '';
+  }
+  let subdirList = res.data.dirList;
+  if(subdirList && subdirList.length>0){
+    setNewFolderList(subdirList);
+  }
 }
 // 页面加载完成或重设置大小时执行
 async function resizeOrLoad(){
@@ -904,6 +1156,8 @@ async function resizeOrLoad(){
   await getVersion();
   await switchLang();
   replaceVar();
+  selectedFiles = [];
+  showFileList();
 }
 // 切换电脑浏览器还是手机显示模式
 function switchWinOrPhone(){
@@ -921,50 +1175,52 @@ function switchWinOrPhone(){
     tablebody.style.maxHeight = (windowHeight - 200) + 'px';
   }
   if(windowWidth < 737){ //phone
-    switchMenulistBtn.style.display = 'block'
-    leftSidebar.style.display = 'none'
-    logoImg.style.display = 'none'
-    search.style.display = 'none'
-    headerRight.style.display = 'none'
-    headerRight1.style.display = 'flex'
+    if(selectedFiles.length>0){
+      showDomObj('file-selection');
+    }
+    showDomObj(switchMenulistBtn, 'block');
+    showDomObj(headerRight1, 'flex');
+    hideDomObj(leftSidebar);
+    hideDomObj(logoImg);
+    hideDomObj(search);
+    hideDomObj(headerRight);
     main.style.marginLeft = '0px'
     main.style.width = windowWidth + 'px'
     //console.log('L896 listStyle='+listStyle);
     if(listStyle == 'detail'){
       let sizeP = document.getElementsByClassName('size');
       for (const item of sizeP) {
-        item.style.display = 'none';
+        hideDomObj(item);
       }
       let shareP = document.getElementsByClassName('shared');
       for (const item of shareP) {
-        item.style.display = 'none';
+        hideDomObj(item);
       }
     }
-    return
+    return;
   }
   //window
-  switchMenulistBtn.style.display = 'none'
-  leftSidebar.style.display = ''
-  logoImg.style.display = ''
-  search.style.display = ''
-  headerRight.style.display = ''
-  headerRight1.style.display = 'none'
+  hideDomObj(switchMenulistBtn);
+  hideDomObj(headerRight1);
+  hideDomObj('file-selection');
+  showDomObj(leftSidebar, '');
+  showDomObj(logoImg, '');
+  showDomObj(search, '');
+  showDomObj(headerRight, '');
   main.style.marginLeft = 'auto'
-  // 获取父元素的宽度
-  const parentWidth = main.parentNode.offsetWidth;
   // 获取父元素的字体大小
   const fontSize = parseFloat(getComputedStyle(main.parentNode).fontSize);
   // 计算 19em 对应的像素值
-  const nineteenEmInPixels = 19 * fontSize;
+  const nineteenEmInPixels = 18 * fontSize;
   main.style.width = (windowWidth - nineteenEmInPixels) + 'px';
   if(listStyle == 'detail'){
     let sizeP = document.getElementsByClassName('size');
     for (const item of sizeP) {
-      item.style.display = '';
+      showDomObj(item, '');
     }
     let shareP = document.getElementsByClassName('shared');
     for (const item of shareP) {
-      item.style.display = '';
+      showDomObj(item, '');
     }
   }
 }
@@ -1040,17 +1296,17 @@ async function getUsedSpace(){
       if(diskSpace.usedDiskSpace == 0){
         diskSpace.usedDiskSpacePercent = 0;
       }else{
-        diskSpace.usedDiskSpace = diskSpace.usedDiskSpace/1024/1024/1024;
-        usedDiskSpacePercent = Math.trunc(diskSpace.usedDiskSpace/diskSpace.totalDiskSpace*100);//.fixed(0);
+        //diskSpace.usedDiskSpace = diskSpace.usedDiskSpace/1024/1024/1024;
+        usedDiskSpacePercent = Math.trunc(diskSpace.usedDiskSpace1024/1024/1024/diskSpace.totalDiskSpace*100);//.fixed(0);
       }
-      diskSpace.usedDiskSpace = (diskSpace.usedDiskSpace).toFixed(3);
+      diskSpace.usedDiskSpace = (diskSpace.usedDiskSpace).toFixed(0);
       if(diskSpace.usedDiskSpace == 0){
         diskSpace.usedDiskSpace = 0;
       }
-      diskSpace.usedDiskSpace += ' GB';
+      diskSpace.usedDiskSpace = formatFileSize(diskSpace.usedDiskSpace);//+= ' GB';
       diskSpace.totalDiskSpace += ' GB';
     }else{
-      diskSpace.usedDiskSpace = '0 GB';
+      diskSpace.usedDiskSpace = '0 B';
       diskSpace.totalDiskSpace = '1 GB';
       usedDiskSpacePercent = 0;
     }

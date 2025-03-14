@@ -267,7 +267,7 @@ router.post('/files', (req, res) => {
   const { username } = req.session.user;
   const user = db.data.users.find(user => user.username === username);
   let rootFolderPath = path.join(allRootFolder,user.rootFolderPath,req.body.currPath); // currPath 是相对路径
-  //console.log('L315 rootFolderPath=',rootFolderPath);
+  //console.log('L270 rootFolderPath=',rootFolderPath);
   fs.readdir(rootFolderPath, (err, files) => {
     if (err) {
       res.status(500).json({code:500, msg:'Error reading directory.'});
@@ -320,6 +320,7 @@ router.post('/getDiskSpace', async (req, res)=>{
   res.status(200).json({code:200,msg:'获取已有空间大小成功', data:{'usedDiskSpace': usedSize, 'totalDiskSpace': user.totalDiskSpace}});
   return;
 });
+
 // 获取程序版本
 router.post('/getVersion', async (req, res)=>{
   if(checkSession(req)==false){
@@ -330,6 +331,7 @@ router.post('/getVersion', async (req, res)=>{
   res.status(200).json({code:200,msg:'获取版本成功', data: version});
   return;
 });
+
 // 创建文件夹
 router.post('/createFolder', (req,res) => {
   if(checkSession(req)==false){
@@ -380,6 +382,10 @@ router.post('/createFile', (req,res) => {
     currPath = user.rootFolderPath;
   }
   let fullPath = path.join(allRootFolder,currPath,fileName);
+  if(utils.isFileExist(fullPath)){
+    res.status(400).json({code:400,msg:'该文件或文件夹已存在'});
+    return;
+  }
   fs.writeFile(fullPath, '', (err) => {
   if (err) {
     console.error('创建文件时出错: ', err);
@@ -389,6 +395,100 @@ router.post('/createFile', (req,res) => {
     res.status(200).json({code:200,msg:'文件创建成功'});
   }
   });
+});
+
+// 重命名文件
+router.post('/renameFile', (req,res) => {
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const user = db.data.users.find(user => user.username === username);
+  let data = req.body;
+  let fileName = data.fileName;
+  let oldFileName = data.oldFileName;
+  let currPath = data.currPath;
+  if(currPath == undefined || currPath == null || currPath == ''){
+    currPath = user.rootFolderPath;
+  }
+  let oldPath = path.join(allRootFolder,currPath,oldFileName);
+  let newPath = path.join(allRootFolder,currPath,fileName);
+  if(utils.isFileExist(newPath)){
+    res.status(400).json({code:400,msg:'新名称的文件或文件夹已存在'});
+    return;
+  }
+  try {
+    fs.renameSync(oldPath, newPath);
+    console.log('文件重命名成功');
+    res.status(200).json({code:200,msg:'文件重命名成功'});
+  } catch (err) {
+    console.error('重命名文件时出错:', err);
+    res.status(400).json({code:400,msg:'创建文件出错'});
+  }
+});
+
+// 复制文件
+router.post('/copyFiles', async (req,res) => {
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const user = db.data.users.find(user => user.username === username);
+  let data = req.body;
+  let selectedFiles = data.selectedFiles;
+  let destDir = data.destDir;
+  let fullDestPath = path.join(allRootFolder,user.rootFolderPath,destDir);
+  console.log('L443 fullDeskPath=', fullDestPath);
+  console.log('L444 selectedFiles=', selectedFiles);
+  // 路径嵌套检查
+  for(item of selectedFiles){
+    if(utils.startWith(fullDestPath, item.path)==true){
+      console.log('item.path='+item.path);
+      console.log('fullDestPath='+fullDestPath);
+      console.log('item.path.indexOf(fullDestPath)='+item.path.indexOf(fullDestPath));
+      res.status(400).json({code:400,msg:'复制出错: 不能复制到包含了自身的路径中'});
+      return;
+    }
+  }
+  // 复制后磁盘空间检查
+  let fullPath = path.join(allRootFolder,user.rootFolderPath)
+  let usedSize = await utils.getFolderSize(fullPath);
+  let addSize = 0;
+  for(item of selectedFiles){
+    if(item.type == 'directory'){
+      addSize += await utils.getFolderSize(item.path);
+    }else{
+      addSize += utils.getFileSize(item.path);
+    }
+  }
+  if((usedSize+addSize)/1024/1024/1024 > user.totalDiskSpace){
+    res.status(400).json({code:400,msg:'复制出错:复制后已用空间将比总空间要大'});
+    return;
+  }
+  for(item of selectedFiles){
+    let tf = utils.copySourceToDestinationSync(item.path, fullDestPath);
+    if(tf == false){
+      res.status(400).json({code:400,msg:'复制出错'});
+      return;
+    }
+  }
+  res.status(200).json({code:200,msg:'复制成功'});
+  //let oldPath = path.join(allRootFolder,currPath,oldFileName);
+  //let newPath = path.join(allRootFolder,currPath,fileName);
+  //if(utils.isFileExist(newPath)){
+  //  res.status(400).json({code:400,msg:'新名称的文件或文件夹已存在'});
+  //  return;
+  //}
+  //try {
+  //  fs.renameSync(oldPath, newPath);
+  //  console.log('文件重命名成功');
+  //  res.status(200).json({code:200,msg:'文件重命名成功'});
+  //} catch (err) {
+  //  console.error('重命名文件时出错:', err);
+  //  res.status(400).json({code:400,msg:'创建文件出错'});
+  //}
 });
 
 // 共享文件
