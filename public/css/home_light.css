@@ -613,7 +613,7 @@ main {
     align-items: center;
 }
 #listing.list .item .name {
-    min-width: 45%;
+    min-width: 50%;
 }
 #listing.list .item p.name:not(#listing.list .item.header .name) {
   margin-right: -1em;
@@ -627,29 +627,29 @@ main {
 
 
 #listing.list .item .size {
-    width: 10em;
+  min-width: 10em;
 }
 #listing.list .item .modified {
-    width: 12em;
+  min-width: 12em;
 }
 #listing.list .item .shared {
-    width: 5em;
-    text-align: center;
+  min-width: 5em;
+  text-align: center;
 }
 
 #listing .item {
-    background: var(--surfacePrimary);
-    border-color: var(--divider);
-    position: relative;
-    display: flex;
-    flex-wrap: nowrap;
-    color: var(--textPrimary);
-    transition: .1s ease background,.1s ease opacity;
-    align-items: center;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    user-select: none;
+  background: var(--surfacePrimary);
+  border-color: var(--divider);
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  color: var(--textPrimary);
+  transition: .1s ease background,.1s ease opacity;
+  align-items: center;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 #listing .item.selected {
   background-color: #1d99f3;/*d3d3d3;*/
@@ -725,7 +725,7 @@ main {
   height:80px;
   padding:0px 10px 0px 20px;
   background-color: var(--surfacePrimary);
-  color: #fff;
+  color: var(--textPrimary);
   display:flex;
   margin:0px 10px 10px 10px;
   cursor: pointer;
@@ -735,7 +735,7 @@ main {
 }
 .smallIconDiv:hover{
   background-color: #eee;
-  color: var(--background);
+  color: var(--textSecondary);
 }
 .selectedsmallIconDiv{
   width:284px;
@@ -774,7 +774,7 @@ main {
   flex-direction: column;
   padding: 10px;
   background-color: var(--surfacePrimary);
-  color: var(--textSecondary);
+  color: var(--textPrimary);
   margin: 0px 10px 10px 10px;
   cursor: pointer;
   text-align: center;
@@ -783,7 +783,7 @@ main {
 }
 .largeIconDiv:hover{
   background-color: #eee;
-  color: var(--surfacePrimary);
+  color: var(--textSecondary);
 }
 .selectedlargeIconDiv{
   position: relative;
@@ -833,7 +833,7 @@ main {
   position: fixed;
   top: 3em;
   right: 1em;
-  width: 200px;
+  width: 13em;
   display: block;
   background: var(--surfaceSecondary);
   box-shadow: 0 0 5px var(--borderPrimary);
@@ -917,4 +917,48 @@ main {
 }
 #copyPathsDiv span:hover {
   background-color: #eee;
+}
+#infoFileDiv div {
+  height: 2em;
+  line-height: 2em;
+}
+
+.promptDiv {
+  position: fixed;
+  display: flex;
+  bottom: -4em;
+  left: 0;
+  z-index: 99999;
+  width: 100%;
+  background-color: var(--blue);
+  height: 4em;
+  line-height: 4em;
+  padding: .5em .5em .5em 1em;
+  justify-content: space-between;
+  transition: .2s ease bottom;
+  color: var(--surfacePrimary);
+}
+.promptDiv p {
+  margin-right: auto;
+}
+.promptDiv div {
+  display: inline-block;
+  cursor: pointer;
+  transition: .2s ease all;
+  border: 0;
+  margin: 0;
+  width: 2em;
+  height: 2em;
+  color: var(--surfacePrimary);
+  border-radius: 50%;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  vertical-align: middle;
+  text-align: left;
+  position: relative;
+}
+.promptDiv div i {
+  display: inline-block;
+  line-height: 1;
 }

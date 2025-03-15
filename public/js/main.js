@@ -2,6 +2,7 @@ var currPath = '';
 var listStyle = 'detail'; // detail,smallIcon, largeIcon
 var dirList = [];
 var fileList = [];
+var currPathInfo = {};
 var selectedFiles = [];
 var fileListSort = {
   type: 0, //排序的列索引
@@ -28,6 +29,8 @@ let diskSpace = {
   filebrowserVersion: '0.1'
 }
 let usedDiskSpacePercent = 0;
+let copyOrMove = 'copy';
+let multiSelMode = false;
 //切换文件，文件夹的选择与不选
 function toggleSelect(id){
   let type = id.substring(0,id.indexOf('_'))
@@ -96,7 +99,7 @@ function selectedAfter(){
     return;
   }
   if(selectedFiles.length<=0){
-    hideDomObj('extandHeaderIcons');
+    hideDomObj('extendHeaderIcons');
     hideDomObj('downloadBadge');
   }else{
     showDomObj('extendHeaderIcons', 'flex');
@@ -157,6 +160,7 @@ async function getFiles(){
   }
   dirList = res.data.dirList;
   fileList = res.data.fileList;
+  currPathInfo = res.data.currPathInfo;
   showFileList();
 }
 // 左侧功能菜单列表中的除了 新建文件夹、新建文件、退出之外的菜单项，单击切换时，
@@ -472,6 +476,16 @@ async function downloadFiles(){
     }
     const reader = res.body.getReader();
     const contentLength = res.headers.get('Content-Length');
+    const contentDisposition = res.headers.get('Content-Disposition');
+    console.log('L480 contentDisposition=', contentDisposition);
+    let downloadFileName = 'download.zip';
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (match != null && match[1]) {
+        downloadFileName= match[1].replace(/['"]/g, '');
+      }
+    }
+    
     let receivedLength = 0;
     let chunks = [];
 
@@ -487,7 +501,7 @@ async function downloadFiles(){
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'download.zip';
+    link.download = downloadFileName;
     link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
@@ -516,30 +530,63 @@ function menuMouseLeaveBgColor(){
 }
 // 页面加载完成后，自动执行操作：绑定事件
 document.addEventListener('DOMContentLoaded', function () {
-  const myFiles = getElById('my-files');
-  const newFolder = getElById('new-folder');
-  const newFile = getElById('new-file');
-  const downloadList = getElById('download-list');
-  const uploadList = getElById('upload-list');
-  const shareList = getElById('share-list');
-  const settings = getElById('settings');
-  const logout = getElById('logout');
-  const mainContent = getElById('main-content');
-  const folderModal = getElById('newFolderModal');
-  const fileModal = getElById('newFileModal');
-  const settingsModal = getElById('settingsModal');
-  const fileListTable = getElById("fileListTable");
-  const switchMenuListBtn = getElById("switchMenulistBtn");
+  //左侧功能菜单项
+  const myFiles = getElById('my-files');          //我的文件
+  const newFolder = getElById('new-folder');      //新建文件夹
+  const newFile = getElById('new-file');          //新建文件
+  const downloadList = getElById('download-list');//下载列表
+  const uploadList = getElById('upload-list');    //上传列表
+  const shareList = getElById('share-list');      //共享列表
+  const settings = getElById('settings');         //设置
+  const logout = getElById('logout');             //退出
   
-  const renameFileModal = getElById("renameFileModal");
-  const copyFileModal = getElById("copyFileModal");
+  const mainContent = getElById('main-content');    //文件列表：小图标、大图标模式
+  const fileListTable = getElById("fileListTable"); //文件列表：表格模式
   
-  const renameIcon = getElById("renameIcon");
-  const renameIcon1 = getElById("renameIcon1");
-  const copyIcon = getElById("copyIcon");
-  const copyIcon1 = getElById("copyIcon1");
-  
+  // 基本操作按钮
+  const switchShowStyleDiv = getElById("switchShowStyleDiv"); //切换文件夹文件列显示模式图标
+  const switchShowStyleDiv1 = getElById("switchShowStyleDiv1");
+  const downloadIcon = getElById("downloadIcon");
+  const downloadIcon1 = getElById("downloadIcon1");
+  const uploadIcon = getElById("uploadIcon");
+  const uploadIcon1 = getElById("uploadIcon1");
+  const infoIcon = getElById("infoIcon");
+  const infoIcon1 = getElById("infoIcon1");
+  const multiselIcon = getElById("multiselIcon");
+  const multiselIcon1 = getElById("multiselIcon1");
   const userIcon = getElById("userIcon");
+  
+  const languageSelect = getElById("languageSelect");
+  
+  //手机模式下，左上角切换功能菜单按钮
+  const switchMenuListBtn = getElById("switchMenulistBtn");
+  // 手机模式下右上角图标
+  const searchDiv = getElById("searchDiv");
+  const moreDiv = getElById("moreDiv");
+  
+  // 扩展操作按钮
+  const shareIcon = getElById("shareIcon");     //共享图标
+  const shareIcon1 = getElById("shareIcon1");
+  const renameIcon = getElById("renameIcon");   //重命名图标
+  const renameIcon1 = getElById("renameIcon1");
+  const copyIcon = getElById("copyIcon");       //复制图标
+  const copyIcon1 = getElById("copyIcon1");
+  const moveIcon = getElById("moveIcon");       //移动图标
+  const moveIcon1 = getElById("moveIcon1");
+  const deleteIcon = getElById("deleteIcon");   //删除图标
+  const deleteIcon1 = getElById("deleteIcon1");
+  
+  // 弹出窗口
+  const folderModal = getElById('newFolderModal');      //新建文件夹窗口
+  const fileModal = getElById('newFileModal');          //新建文件窗口
+  const settingsModal = getElById('settingsModal');     //设置窗口，要被设置页面替代了
+  const uploadModal = getElById('uploadModal');         //上传选择文件窗口
+  const infoModal = getElById('infoModal');             //文件/文件夹信息窗口
+  const renameFileModal = getElById("renameFileModal"); //重命名窗口
+  const copyFileModal = getElById("copyFileModal");     //复制选择目标目录窗口
+  const deleteConfirmModal = getElById("deleteConfirmModal");//确认删除窗口
+  
+  
   
   // 主页加载时，默认查询用户根目录下的文件夹和文件，并列出来
   getFiles();
@@ -630,6 +677,51 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
   
+  switchShowStyleDiv.addEventListener('click', function(){
+    switchShowStyle();
+  })
+  switchShowStyleDiv1.addEventListener('click', function(){
+    switchShowStyle();
+  })
+  
+  downloadIcon.addEventListener('click', function(){
+    downloadFiles();
+  })
+  downloadIcon1.addEventListener('click', function(){
+    downloadFiles();
+  })
+  
+  uploadIcon.addEventListener('click', function(){
+    showDomObj('uploadModal', 'block');
+  })
+  uploadIcon1.addEventListener('click', function(){
+    showDomObj('uploadModal', 'block');
+  })
+  
+  infoIcon.addEventListener('click', function(){
+    showDomObj('infoModal', 'block');
+    setShowFileInfo();
+  })
+  infoIcon1.addEventListener('click', function(){
+    showDomObj('infoModal', 'block');
+    setShowFileInfo();
+  })
+  multiselIcon.addEventListener('click', function(){
+    multiSelMode = !multiSelMode;
+    if(multiSelMode == true){
+      getElById('promptDiv').style.bottom = '0';
+    }else{
+      getElById('promptDiv').style.bottom = '-4em';
+    }
+  });
+  multiselIcon1.addEventListener('click', function(){
+    multiSelMode = !multiSelMode;
+    if(multiSelMode == true){
+      getElById('promptDiv').style.bottom = '0';
+    }else{
+      getElById('promptDiv').style.bottom = '-4em';
+    }
+  });
   // 单击重命名图标，弹出要求输入新名称窗口
   renameIcon.addEventListener('click', function () {
     showDomObj(renameFileModal, 'block');
@@ -639,7 +731,56 @@ document.addEventListener('DOMContentLoaded', function () {
     showDomObj(renameFileModal, 'block');
     getElById('newfileName').value = selectedFiles[0].name;
   });
-  
+  // 上传窗口，单击确定，执行上传文件操作
+  uploadModal.querySelector('form').addEventListener('submit', async function (){
+    event.preventDefault();
+    const fileInput = getElById('uploadfileName');
+    console.log('L703 fileInput=', fileInput);
+    const file = fileInput.files[0];
+    if (isValid(file)==false){
+      alert('请选择要上传的文件');
+    }
+    const formData = new FormData();
+    // 模拟当前目录信息，这里只是一个示例字符串
+    formData.append('currentDirectory', currPath);
+    formData.append('fileName', file.name);
+    formData.append('fileData', file);
+    hideDomObj(uploadModal);
+    showOverlay();
+    fetch('upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(async response => {
+        if(response == undefined || response == null){
+          alert('上传失败');
+          return;
+        }
+        let res = await response.json();
+        console.log('L740 res=', res);
+        if(res.code == 400 && res.msg == 'need re-login'){
+          afterlogout();
+          hideOverlay();
+          return;
+        }
+        if(res.result == true){
+          myFiles.click();
+          await getUsedSpace();
+          replaceVar();
+          alert('上传成功');
+        }else{
+          alert('上传失败');
+        }
+      })
+      .then(data => {
+        console.log('L722 data=', data);
+      })
+      .catch(error => {
+        console.error('上传失败:', error);
+        alert('上传失败');
+      });
+      hideOverlay();
+  });
   // 重命名文件窗口，确定按钮单击响应
   renameFileModal.querySelector('form').addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -686,12 +827,41 @@ document.addEventListener('DOMContentLoaded', function () {
   
   // 单击复制图标，弹出要求选择目标目录窗口
   copyIcon.addEventListener('click', function () {
+    copyOrMove = 'copy';
+    copyFileModal.querySelector('.modal-title').innerHTML = '复制';
+    copyFileModal.querySelector('.primaryBtn').innerHTML = '复制';
     showDomObj('copyFileModal', 'block');
     listDirForSel();
   });
   copyIcon1.addEventListener('click', function () {
+    copyOrMove = 'copy';
+    copyFileModal.querySelector('.modal-title').innerHTML = '复制';
+    copyFileModal.querySelector('.primaryBtn').innerHTML = '复制';
     showDomObj('copyFileModal', 'block');
     listDirForSel();
+  });
+  
+  // 单击移动图标，弹出要求选择目标目录窗口
+  moveIcon.addEventListener('click', function () {
+    copyOrMove = 'move';
+    copyFileModal.querySelector('.modal-title').innerHTML = '移动';
+    copyFileModal.querySelector('.primaryBtn').innerHTML = '移动';
+    showDomObj('copyFileModal', 'block');
+    listDirForSel();
+  });
+  moveIcon1.addEventListener('click', function () {
+    copyOrMove = 'move';
+    copyFileModal.querySelector('.modal-title').innerHTML = '移动';
+    copyFileModal.querySelector('.primaryBtn').innerHTML = '移动';
+    showDomObj('copyFileModal', 'block');
+    listDirForSel();
+  });
+  // 单击删除图标，弹出确认删除对话框，确认后执行删除
+  deleteIcon.addEventListener('click', function () {
+    showDomObj(deleteConfirmModal, 'block');
+  });
+  deleteIcon1.addEventListener('click', function () {
+    showDomObj(deleteConfirmModal, 'block');
   });
   
   // 重命名文件窗口，确定按钮单击响应
@@ -711,29 +881,73 @@ document.addEventListener('DOMContentLoaded', function () {
     if(isValid(selPath) == true){
       fullPath += '/' + selPath;
     }
-    console.log('L714 fullPath='+fullPath);
-    console.log('L715 selectedFiles=', selectedFiles);
-    console.log('L716 userInfo=', userInfo);
+    //console.log('L714 fullPath='+fullPath);
+    //console.log('L715 selectedFiles=', selectedFiles);
+    //console.log('L716 userInfo=', userInfo);
     let data = {
       selectedFiles: selectedFiles, 
       destDir: fullPath
     }
-    let res = await fetchDataPost('copyFiles', data);
+    let optApi = 'copyFiles';
+    if(copyOrMove == 'move'){
+      optApi = 'moveFiles';
+    }
+    let res = await fetchDataPost(optApi, data);
     if(checkResponse(res, '')==false){
       if(res && res.msg == 'need re-login'){
         afterlogout();
         return;
       }
-      alert('复制失败');
+      if(copyOrMove == 'copy'){
+        alert('复制失败');
+      }else{
+        alert('移动失败');
+      }
       return;
     }
     if(res.result == true){
       hideDomObj(copyFileModal);
       // 刷新文件列表
-      //myFiles.click();
-      alert('复制成功.');
+      if(copyOrMove == 'copy'){
+        myFiles.click();
+        await getUsedSpace();
+        replaceVar();
+        alert('复制成功.');
+      }else{
+        myFiles.click();
+        alert('移动成功.');
+      }
     }else{
-      alert('复制失败.');
+      if(copyOrMove == 'copy'){
+        alert('复制失败');
+      }else{
+        alert('移动失败');
+      }
+    }
+  });
+  
+  deleteConfirmModal.querySelector('form').addEventListener('submit',async  function (event) {
+    let data = {
+      selectedFiles: selectedFiles
+    };
+    let res = await fetchDataPost('deleteFiles', data);
+    if(checkResponse(res, '')==false){
+      if(res && res.msg == 'need re-login'){
+        afterlogout();
+        return;
+      }
+      alert('删除失败');
+      return;
+    }
+    if(res.result == true){
+      hideDomObj(deleteConfirmModal);
+      // 刷新文件列表
+      myFiles.click();
+      await getUsedSpace();
+      replaceVar();
+      alert('删除成功.');
+    }else{
+      alert('删除失败');
     }
   });
   
@@ -745,6 +959,9 @@ document.addEventListener('DOMContentLoaded', function () {
         obj.style.transform = 'scale(0)';
       }else{
         obj.style.transform = 'scale(1)';
+        console.log('L962 userInfo=', userInfo);
+        getElById('languageSelect').value = userInfo.lang;
+        getElById('userNameSpan').innerHTML = userInfo.username;
       }
     }
   });
@@ -754,8 +971,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if(obj){
       if(obj.style.transform == 'scale(1)'){
         obj.style.transform = 'scale(0)';
+        //hideOverlay();
       }else{
         obj.style.transform = 'scale(1)';
+        //showOverlay();
       }
     }
   });
@@ -777,17 +996,29 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   })
+  
+  languageSelect.addEventListener('change', async function(){
+    const selectedValue = this.value;
+    console.log('L1000 selectedValue='+selectedValue);
+    let obj = getElById('dropdownUserMenu');
+    if(obj){
+      obj.style.transform = 'scale(0)';
+    }
+    await switchLang(selectedValue);
+    replaceVar();
+  });
   // 点击页面其他地方隐藏用户下拉菜单或操作下拉菜单
   document.addEventListener('click', function (event) {
     let obj = getElById('dropdownUserMenu');
     if (obj && !userIcon.contains(event.target) && !obj.contains(event.target)) {
       obj.style.transform = 'scale(0)';
+      //hideOverlay();
     }
     obj = getElById('dropdownOptMenu');
     if (obj && !moreDiv.contains(event.target)){ // && !obj.contains(event.target)) {
       obj.style.transform = 'scale(0)';
+      //hideOverlay();
     }
-    let overlay = document.getElementsByClassName('overlay')[0];
     obj = getElById('left-sidebar');
     if(obj && !switchMenuListBtn.contains(event.target)) {
       //console.log('L660 obj.style.display='+obj.style.display);
@@ -795,9 +1026,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideDomObj(obj);
         obj.style.top = '4em';
         obj.className = '';
-        if(overlay){
-          hideDomObj(overlay);
-        }
+        hideOverlay();
       }
     }
   });
@@ -952,8 +1181,17 @@ document.addEventListener('DOMContentLoaded', function () {
     if (event.target == getElById('moveFileModal')) {
       hideDomObj('moveFileModal');
     }
+    if (event.target == deleteConfirmModal) {
+      hideDomObj(deleteConfirmModal);
+    }
     if (event.target == settingsModal) {
       hideDomObj(settingsModal);
+    }
+    if (event.target == uploadModal) {
+      hideDomObj(uploadModal);
+    }
+    if (event.target == infoModal) {
+      hideDomObj(infoModal);
     }
   };
   resizeOrLoad();
@@ -984,11 +1222,36 @@ function listDirForSel(){
   let subpathDiv = document.createElement('span');
   subpathDiv.setAttribute('aria-label', '');
   subpathDiv.innerHTML = '根目录/';
+  //console.log('L1082 currPath='+currPath);
   subpathDiv.addEventListener('click', function(){
-    console.log(this.getAttribute('aria-label'));
+    //console.log(this.getAttribute('aria-label'));
     setNewFolderListByPath('');
   });
   copyPathsDiv.appendChild(subpathDiv);
+  if(currPath != ''){
+    let patharr = currPath.split('/');
+    let result = [];
+    let currentPath = '';
+    for (let i = 0; i < patharr.length; i++) {
+      if (i === 0) {
+        currentPath = patharr[i];
+      } else {
+        currentPath = `${currentPath}/${patharr[i]}`;
+      }
+      result.push(currentPath);
+    }
+    for(let i=0;i<result.length;i++){
+      let subpathDiv = document.createElement('span');
+      subpathDiv.setAttribute('aria-label', result[i]);
+      subpathDiv.innerHTML = result[i].split('/')[result[i].split('/').length-1]+'/';
+      subpathDiv.addEventListener('click', function(){
+        //console.log('L1105 '+this.getAttribute('aria-label'));
+        setNewFolderListByPath(this.getAttribute('aria-label'));
+      });
+      copyPathsDiv.appendChild(subpathDiv);
+    }
+    
+  }
   // 创建多个 li 元素
   dirList.forEach(item=>{
     const li = document.createElement('li');
@@ -1017,14 +1280,14 @@ function listDirForSel(){
     });
     // 为 li 元素添加双击事件监听器
     li.addEventListener('dblclick', async function () {
-      console.log(`你双击了 ${this.getAttribute('aria-label')} 项`);
+      //console.log(`你双击了 ${this.getAttribute('aria-label')} 项`);
       // 这里可以添加双击时要执行的其他操作
       copyFileList.innerHTML = '';
       let subpathDiv = document.createElement('span');
       subpathDiv.setAttribute('aria-label', copyPathsDiv.children[copyPathsDiv.children.length-1].getAttribute('aria-label')+'/' + this.getAttribute('aria-label'));
       subpathDiv.innerHTML = this.getAttribute('aria-label') + '/';
       subpathDiv.addEventListener('click', function(){
-        console.log(this.getAttribute('aria-label'));
+        //console.log(this.getAttribute('aria-label'));
         setNewFolderListByPath(this.getAttribute('aria-label'));
       });
       copyPathsDiv.appendChild(subpathDiv);
@@ -1048,6 +1311,80 @@ function listDirForSel(){
     // 将 li 元素添加到 ul 中
     copyFileList.appendChild(li);
   })
+}
+// 对文件/文件夹信息弹出窗口，设置要显示的文件文件夹信息
+function setShowFileInfo(){
+  let infoFileDiv = getElById('infoFileDiv');
+  infoFileDiv.innerHTML = '';
+  if(currPath == '' && selectedFiles.length <= 0){
+    let nameDiv = document.createElement('div');
+    nameDiv.innerHTML = '<b>名称：</b>filebrowser';
+    infoFileDiv.appendChild(nameDiv);
+    let modified = document.createElement('div');
+    modified.innerHTML = '<b>最后修改：</b>' + formatDate(currPathInfo.modified);
+    infoFileDiv.appendChild(modified);
+    let fileNumDiv = document.createElement('div');
+    fileNumDiv.innerHTML = '<b>文件数：</b>' + fileList.length;
+    infoFileDiv.appendChild(fileNumDiv);
+    let dirNumDiv = document.createElement('div');
+    dirNumDiv.innerHTML = '<b>文件夹数：</b>' + dirList.length;
+    infoFileDiv.appendChild(dirNumDiv);
+    return;
+  }
+  if(selectedFiles.length <= 0){ // currPath 不为空
+    let nameDiv = document.createElement('div');
+    nameDiv.innerHTML = '<b>名称：</b>' + currPathInfo.name;
+    infoFileDiv.appendChild(nameDiv);
+    let modified = document.createElement('div');
+    modified.innerHTML = '<b>最后修改：</b>' + formatDate(currPathInfo.modified);
+    infoFileDiv.appendChild(modified);
+    infoFileDiv.appendChild(descDiv);
+    let sizeDiv = document.createElement('div');
+    sizeDiv.innerHTML = '<b>大小：</b>' + formatFileSize(currPathInfo.size);
+    infoFileDiv.appendChild(sizeDiv);
+    let fileNumDiv = document.createElement('div');
+    fileNumDiv.innerHTML = '<b>文件数：</b>' + fileList.length;
+    infoFileDiv.appendChild(fileNumDiv);
+    let dirNumDiv = document.createElement('div');
+    dirNumDiv.innerHTML = '<b>文件夹数：</b>' + dirList.length;
+    infoFileDiv.appendChild(dirNumDiv);
+    return;
+  }
+  if(selectedFiles.length == 1){
+    let nameDiv = document.createElement('div');
+    nameDiv.innerHTML = '<b>名称：</b>' + selectedFiles[0].name;
+    infoFileDiv.appendChild(nameDiv);
+    let typeDiv = document.createElement('div');
+    typeDiv.innerHTML = '<b>类型：</b>' + selectedFiles[0].type;
+    infoFileDiv.appendChild(typeDiv);
+    let modified = document.createElement('div');
+    modified.innerHTML = '<b>最后修改：</b>' + formatDate(selectedFiles[0].modified);
+    infoFileDiv.appendChild(modified);
+    let sizeDiv = document.createElement('div');
+    sizeDiv.innerHTML = '<b>大小：</b>' + formatFileSize(selectedFiles[0].size);
+    infoFileDiv.appendChild(sizeDiv);
+    return;
+  }
+  let fileNum = 0;
+  let totalSize = 0;
+  selectedFiles.forEach(item=>{
+    if(item.type == 'file'){
+      fileNum ++;
+    }
+    totalSize += item.size;
+  })
+  let descDiv = document.createElement('div');
+  if(fileNum == 0){
+    descDiv.innerHTML = '共选中 ' + selectedFiles.length + ' 个文件夹。';
+  }else if(fileNum == selectedFiles.length){
+    descDiv.innerHTML = '共选中 ' + selectedFiles.length + ' 个文件。';
+  }else{
+    descDiv.innerHTML = '共选中 ' + fileNum + ' 个文件，' + (selectedFiles.length-fileNum) + ' 个文件夹。';
+  }
+  infoFileDiv.appendChild(descDiv);
+  let sizeDiv = document.createElement('div');
+  sizeDiv.innerHTML = '<b>大小：</b>' + formatFileSize(totalSize);
+  infoFileDiv.appendChild(sizeDiv);
 }
 // 复制文件或文件夹窗口中，文件夹列表，文件夹双击，根据新路径进行获取
 function setNewFolderList(newFolderList){
@@ -1079,14 +1416,14 @@ function setNewFolderList(newFolderList){
     });
     // 为 li 元素添加双击事件监听器
     li.addEventListener('dblclick', async function () {
-      console.log(`你双击了 ${this.textContent.trim()} 项`);
+      //console.log(`你双击了 ${this.textContent.trim()} 项`);
       // 这里可以添加双击时要执行的其他操作
       let copyPathsDiv = getElById('copyPathsDiv');
       let subpathDiv = document.createElement('span');
       subpathDiv.setAttribute('aria-label', copyPathsDiv.children[copyPathsDiv.children.length-1].getAttribute('aria-label')+'/' + this.textContent.trim());
       subpathDiv.innerHTML = this.textContent.trim() + '/';
       subpathDiv.addEventListener('click', function(){
-        console.log(this.getAttribute('aria-label'))
+        //console.log(this.getAttribute('aria-label'))
         setNewFolderListByPath(this.getAttribute('aria-label'));
       });
       copyPathsDiv.appendChild(subpathDiv);
@@ -1149,12 +1486,13 @@ async function setNewFolderListByPath(path){
 }
 // 页面加载完成或重设置大小时执行
 async function resizeOrLoad(){
+  userInfo = JSON.parse(sessionStorage.getItem('user'));
   releaseSelStatus('my-files');
   switchWinOrPhone()
   await getUsedSpace();
   //console.log('L735 diskSpace=', diskSpace);
   await getVersion();
-  await switchLang();
+  await switchLang(userInfo.lang);
   replaceVar();
   selectedFiles = [];
   showFileList();
@@ -1226,13 +1564,30 @@ function switchWinOrPhone(){
 }
 // 切换语言
 let languagePack = [];
-async function switchLang(){
+async function switchLang(lang){
   let browserLanguage = navigator.language || navigator.userLanguage;
-  let res = await fetchDataPost('lang',{ 'lang': browserLanguage });
+  let setlang = lang;
+  if(isValid(lang)==false){
+    lang = userInfo.lang;
+    console.log('L1571 lang='+lang);
+  }
+  if(lang == 'browser'){
+    setlang = browserLanguage;
+  }
+  if(lang != ''){
+    let res = await fetchDataPost('updateSet', {'lang': lang});
+    if(checkResponse(res, '')==false){
+      console.error('L1574 res=', res);
+      return;
+    }
+    userInfo.lang = lang;
+    sessionStorage.setItem('user', JSON.stringify(userInfo));
+  }
+  let res = await fetchDataPost('lang',{ 'lang': setlang });
   //console.log('L778 res=',res);
   if(checkResponse(res, '')==false){
     //alert('创建文件夹失败');
-    console.error('L779 res=', res);
+    console.error('L1582 res=', res);
     return;
   }
   if(res.result == true){

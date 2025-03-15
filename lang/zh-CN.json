@@ -15,6 +15,21 @@
     "value":"新建文件"
   }, 
   {
+    "id":"downloadListSpan", 
+    "attr":"text", 
+    "value":"下载列表"
+  }, 
+  {
+    "id":"uploadListSpan", 
+    "attr":"text", 
+    "value":"上传列表"
+  }, 
+  {
+    "id":"sharedListSpan", 
+    "attr":"text", 
+    "value":"共享列表"
+  }, 
+  {
     "id":"settingsSpan", 
     "attr":"text", 
     "value":"设置"
@@ -203,5 +218,50 @@
     "id":"fileSelNumSpan", 
     "attr":"text", 
     "value":"选中了 {fileSelNum} 个"
+  }, 
+  {
+    "id":"currentUserDiv", 
+    "attr":"text", 
+    "value":"当前用户"
+  }, 
+  {
+    "id":"languageLabel", 
+    "attr":"text", 
+    "value":"语言:"
+  }, 
+  {
+    "id":"browserOption", 
+    "attr":"text", 
+    "value":"随浏览器"
+  }, 
+  {
+    "id":"enOption", 
+    "attr":"text", 
+    "value":"英文"
+  }, 
+  {
+    "id":"zhOption", 
+    "attr":"text", 
+    "value":"中文"
+  }, 
+  {
+    "id":"themeDiv", 
+    "attr":"text", 
+    "value":"样式:"
+  }, 
+  {
+    "id":"sysOption", 
+    "attr":"text", 
+    "value":"随系统"
+  }, 
+  {
+    "id":"lightOption", 
+    "attr":"text", 
+    "value":"浅色"
+  }, 
+  {
+    "id":"darkOption", 
+    "attr":"text", 
+    "value":"深色"
   }
 ]

@@ -15,6 +15,21 @@
     "value":"Create File"
   }, 
   {
+    "id":"downloadListSpan", 
+    "attr":"text", 
+    "value":"Download List"
+  }, 
+  {
+    "id":"uploadListSpan", 
+    "attr":"text", 
+    "value":"Upload List"
+  }, 
+  {
+    "id":"sharedListSpan", 
+    "attr":"text", 
+    "value":"Share List"
+  }, 
+  {
     "id":"settingsSpan", 
     "attr":"text", 
     "value":"Settings"
@@ -203,5 +218,50 @@
     "id":"fileSelNumSpan", 
     "attr":"text", 
     "value":"selected {fileSelNum}"
+  }, 
+  {
+    "id":"currentUserDiv", 
+    "attr":"text", 
+    "value":"当前用户"
+  }, 
+  {
+    "id":"languageLabel", 
+    "attr":"text", 
+    "value":"Language:"
+  }, 
+  {
+    "id":"browserOption", 
+    "attr":"text", 
+    "value":"Browser"
+  }, 
+  {
+    "id":"enOption", 
+    "attr":"text", 
+    "value":"English"
+  }, 
+  {
+    "id":"zhOption", 
+    "attr":"text", 
+    "value":"Chinese"
+  }, 
+  {
+    "id":"themeDiv", 
+    "attr":"text", 
+    "value":"Theme:"
+  }, 
+  {
+    "id":"sysOption", 
+    "attr":"text", 
+    "value":"System"
+  }, 
+  {
+    "id":"lightOption", 
+    "attr":"text", 
+    "value":"Light"
+  }, 
+  {
+    "id":"darkOption", 
+    "attr":"text", 
+    "value":"Dark"
   }
 ]

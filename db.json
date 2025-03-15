@@ -6,7 +6,9 @@
       "password": "$2b$10$MTgT8CxjqsTvJv.c5VAwc.d.ndm1O2ivcbdH3tqAWR05KR6gG8bCK",
       "rootFolderPath": "",
       "isAdmin": 1,
-      "totalDiskSpace": 1
+      "totalDiskSpace": 1,
+      "lang": "browser",
+      "theme": 0
     }
   ],
   "settings": [

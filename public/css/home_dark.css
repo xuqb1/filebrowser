@@ -23,7 +23,7 @@
   --iconPrimary: var(--icon-blue);
   --iconSecondary: rgb(255, 255, 255);
   --iconTertiary: rgb(100, 100, 100);
-  --textPrimary: rgb(200, 200, 200);
+  --textPrimary: rgb(111, 111, 111);
   --textSecondary: rgb(255, 255, 255);
   --hover: rgba(255, 255, 255, .1);
   --borderPrimary: rgba(255, 255, 255, .1);
@@ -44,6 +44,7 @@ body, html {
   padding: 0;
   height: 100%;
   width: 100%;
+  font-size: 16px;
   overflow-x: hidden;
   background-color: var(--background);
 }
@@ -81,11 +82,21 @@ button, input, optgroup, select, textarea {
   line-height: 1.15;
   margin: 0px;
 }
-
+.overlay {
+  background-color: rgba(0,0,0,.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 19;
+  /*opacity: 0;*/
+  animation: .1s show forwards;
+}
 .modal {
   display: none;
   position: fixed;
-  z-index: 10;
+  z-index: 30;
   left: 0;
   top: 0;
   width: 100%;
@@ -380,8 +391,9 @@ nav {
   height: calc(100% - 4em);
   background-color: var(--surfacePrimary);
   border-right: 1px solid #ccc;
+  z-index: 20;
 }
-nav .action {
+nav.action {
   width: 100%;
   display: block;
   border-radius: 0;
@@ -485,10 +497,10 @@ main {
   /*flex: 1;
   background-color: #fafafa;*/
   display: block;
-  min-height: 1em;
+  /*min-height: 1em;*/
   margin: 5em 1em 1em auto;
-  width: calc(100% - 19em);
-  height: 100%;
+  width: calc(100% - 12em);
+  height: calc(100% - 6em);
 }
 /* 下部 右侧  内容区 文件列表的上部导航条*/
 .navDiv {
@@ -713,7 +725,7 @@ main {
   height:80px;
   padding:0px 10px 0px 20px;
   background-color: var(--surfacePrimary);
-  color: #fff;
+  color: var(--textPrimary);
   display:flex;
   margin:0px 10px 10px 10px;
   cursor: pointer;
@@ -762,7 +774,7 @@ main {
   flex-direction: column;
   padding: 10px;
   background-color: var(--surfacePrimary);
-  color: var(--textSecondary);
+  color: var(--textPrimary);
   margin: 0px 10px 10px 10px;
   cursor: pointer;
   text-align: center;
@@ -865,4 +877,88 @@ main {
   margin-left: 1em;
   color: var(--textPrimary);
   margin-right: auto;
+}
+
+#copyFileModal .modal-content {
+  max-width: 25em;
+  width: 90%;
+}
+.file-list {
+  min-height: 5em;
+  max-height: 35vh;
+  overflow: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border: 1px solid #eee;
+}
+.file-list li[aria-selected=true] {
+  background: var(--blue)!important;
+  color: var(--iconSecondary)!important;
+  transition: .1s ease all;
+}
+.file-list li {
+  width: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  border-radius: .2em;
+  padding: .3em;
+}
+.file-list li:hover {
+  background-color: #eee;
+}
+.folder-icon{
+  color: var(--blue);
+}
+[aria-selected="true"] .folder-icon {
+  color: white;
+}
+#copyPathsDiv span:hover {
+  background-color: #eee;
+}
+#infoFileDiv div {
+  height: 2em;
+  line-height: 2em;
+}
+
+.promptDiv {
+  position: fixed;
+  display: flex;
+  bottom: -4em;
+  left: 0;
+  z-index: 99999;
+  width: 100%;
+  background-color: var(--blue);
+  height: 4em;
+  line-height: 4em;
+  padding: .5em .5em .5em 1em;
+  justify-content: space-between;
+  transition: .2s ease bottom;
+  color: var(--surfacePrimary);
+}
+.promptDiv p {
+  margin-right: auto;
+}
+.promptDiv div {
+  display: inline-block;
+  cursor: pointer;
+  transition: .2s ease all;
+  border: 0;
+  margin: 0;
+  width: 2em;
+  height: 2em;
+  color: var(--surfacePrimary);
+  border-radius: 50%;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  vertical-align: middle;
+  text-align: left;
+  position: relative;
+}
+.promptDiv div i {
+  display: inline-block;
+  line-height: 1;
 }

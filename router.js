@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const lodash = require('lodash');
 const session = require('express-session');
 const os = require('os');
+const multer = require('multer');
 
 const utils = require('./utils');
 //import { loginfo, logerror } from './utils.js'
@@ -21,11 +22,13 @@ const defaultData = {
   users: [], 
   settings: [], 
   shared: [], 
-  global: []
+  global: [], 
+  upload: [], 
+  download: []
 };
 const db = new Low(adapter, defaultData); //初始化数据库对象，即从db.json中加载数据
 let allRootFolder = '/opt/filebrowser'
-console.log('platform=', os.platform());
+//console.log('L29 platform=', os.platform());
 if(os.platform()=='win32'){
   allRootFolder = 'D:\\files';
 }
@@ -46,7 +49,7 @@ db.read()
         console.error('L38 Error hashing admin password:', err);
         return;
       }
-      let adminid = Date.now().toString()
+      let adminid = Date.now().toString(); // 管理员ID设置为日期
       db.data.users.push({
         id: adminid,
         username: 'admin',
@@ -56,7 +59,7 @@ db.read()
       });
       db.data.settings.push({
         userid: adminid, 
-        lang: '中文(简体)', 
+        lang: 'zh-CN', 
         notShowHiddenFile: false, 
         showAccurateTime: false
       })
@@ -104,21 +107,14 @@ router.get('/', (req, res) => {
   }
 });
 
-router.get('/lang', (req, res) => {
-    // 从请求的查询参数中获取 lang 值
-    const lang = req.query.lang || 'en'; 
-    const languageData = utils.readLanguageData(lang);
-    //res.json(languageData);
-    res.status(200).json({code:200, msg: 'getlang successful.', data: languageData});
-});
-
+// 获取不同语言数组
 router.post('/lang', (req, res) => {
-    // 从请求的查询参数中获取 lang 值
-    //const lang = req.query.lang || 'en'; 
-    const lang = req.body.lang || 'en';
-    const languageData = utils.readLanguageData(lang);
-    //res.json(languageData);
-    res.status(200).json({code:200, msg: 'getlang successful.', data: languageData});
+  // 从请求的查询参数中获取 lang 值
+  //const lang = req.query.lang || 'en'; 
+  const lang = req.body.lang || 'en-US';
+  const languageData = utils.readLanguageData(lang);
+  //res.json(languageData);
+  res.status(200).json({code:200, msg: 'getlang successful.', data: languageData});
 });
 
 // 注册用户
@@ -268,21 +264,23 @@ router.post('/files', (req, res) => {
   const user = db.data.users.find(user => user.username === username);
   let rootFolderPath = path.join(allRootFolder,user.rootFolderPath,req.body.currPath); // currPath 是相对路径
   //console.log('L270 rootFolderPath=',rootFolderPath);
-  fs.readdir(rootFolderPath, (err, files) => {
+  let currPathStats = fs.statSync(rootFolderPath);
+  
+  fs.readdir(rootFolderPath, async (err, files) => {
     if (err) {
       res.status(500).json({code:500, msg:'Error reading directory.'});
       return;
     }
     let fileList = [];
     let dirList = [];
-    files.forEach(file => {
+    files.forEach(async file => {
       const fullPath = path.join(rootFolderPath, file);
       const stats = fs.statSync(fullPath);
       if (stats.isDirectory()) {
         dirList.push({
           name: file,
           type: 'directory',
-          size: stats.size,
+          size: await utils.getFolderSize(fullPath), //stats.size,
           modified: stats.mtime,
           path: fullPath
         });
@@ -300,7 +298,14 @@ router.post('/files', (req, res) => {
       code: 200,
       data: {
         dirList:dirList,
-        fileList:fileList
+        fileList:fileList, 
+        currPathInfo: {
+          name: req.body.currPath, 
+          type: 'directory', 
+          size: await utils.getFolderSize(rootFolderPath), //currPathStats.size, 
+          modified: currPathStats.mtime, 
+          path: rootFolderPath
+        }
       }
     }
     res.status(200).json(data);
@@ -440,14 +445,14 @@ router.post('/copyFiles', async (req,res) => {
   let selectedFiles = data.selectedFiles;
   let destDir = data.destDir;
   let fullDestPath = path.join(allRootFolder,user.rootFolderPath,destDir);
-  console.log('L443 fullDeskPath=', fullDestPath);
-  console.log('L444 selectedFiles=', selectedFiles);
+  //console.log('L443 fullDeskPath=', fullDestPath);
+  //console.log('L444 selectedFiles=', selectedFiles);
   // 路径嵌套检查
   for(item of selectedFiles){
     if(utils.startWith(fullDestPath, item.path)==true){
-      console.log('item.path='+item.path);
-      console.log('fullDestPath='+fullDestPath);
-      console.log('item.path.indexOf(fullDestPath)='+item.path.indexOf(fullDestPath));
+      //console.log('item.path='+item.path);
+      //console.log('fullDestPath='+fullDestPath);
+      //console.log('item.path.indexOf(fullDestPath)='+item.path.indexOf(fullDestPath));
       res.status(400).json({code:400,msg:'复制出错: 不能复制到包含了自身的路径中'});
       return;
     }
@@ -475,20 +480,61 @@ router.post('/copyFiles', async (req,res) => {
     }
   }
   res.status(200).json({code:200,msg:'复制成功'});
-  //let oldPath = path.join(allRootFolder,currPath,oldFileName);
-  //let newPath = path.join(allRootFolder,currPath,fileName);
-  //if(utils.isFileExist(newPath)){
-  //  res.status(400).json({code:400,msg:'新名称的文件或文件夹已存在'});
-  //  return;
-  //}
-  //try {
-  //  fs.renameSync(oldPath, newPath);
-  //  console.log('文件重命名成功');
-  //  res.status(200).json({code:200,msg:'文件重命名成功'});
-  //} catch (err) {
-  //  console.error('重命名文件时出错:', err);
-  //  res.status(400).json({code:400,msg:'创建文件出错'});
-  //}
+});
+
+// 移动文件
+router.post('/moveFiles', async (req,res) => {
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const user = db.data.users.find(user => user.username === username);
+  let data = req.body;
+  let selectedFiles = data.selectedFiles;
+  let destDir = data.destDir;
+  let fullDestPath = path.join(allRootFolder,user.rootFolderPath,destDir);
+  //console.log('L443 fullDeskPath=', fullDestPath);
+  //console.log('L444 selectedFiles=', selectedFiles);
+  // 路径嵌套检查
+  for(item of selectedFiles){
+    if(utils.startWith(fullDestPath, item.path)==true){
+      //console.log('item.path='+item.path);
+      //console.log('fullDestPath='+fullDestPath);
+      //console.log('item.path.indexOf(fullDestPath)='+item.path.indexOf(fullDestPath));
+      res.status(400).json({code:400,msg:'移动出错: 不能移动到包含了自身的路径中'});
+      return;
+    }
+  }
+  for(item of selectedFiles){
+    let tf = await utils.move(item.path, fullDestPath);
+    if(tf == false){
+      res.status(400).json({code:400,msg:'移动出错'});
+      return;
+    }
+  }
+  res.status(200).json({code:200,msg:'移动成功'});
+});
+
+// 删除文件、文件夹
+router.post('/deleteFiles', async (req,res) => {
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const user = db.data.users.find(user => user.username === username);
+  let data = req.body;
+  let selectedFiles = data.selectedFiles;
+  //console.log('L444 selectedFiles=', selectedFiles);
+  for(item of selectedFiles){
+    let tf = await utils.deleteFileOrFolder(item.path);
+    if(tf == false){
+      res.status(400).json({code:400,msg:'删除出错'});
+      return;
+    }
+  }
+  res.status(200).json({code:200,msg:'删除成功'});
 });
 
 // 共享文件
@@ -530,55 +576,34 @@ router.post('/share', (req, res) => {
 // 撤销共享
 router.post('/unshare', (req, res) => {
     const { username } = req.session.user;
-
-
     if (!username) {
         res.status(403).send('You must be logged in to unshare files.');
         return;
     }
-
-
     const user = db.data.users.find(user => user.username === username);
-
-
     if (!user) {
         res.status(400).send('User not found.');
         return;
     }
-
-
     const { filePath, sharedWithUser } = req.body;
-
-
     const item = findItemByPath(user.rootFolderPath, filePath);
-
-
     if (!item) {
         res.status(404).send('File or folder not found.');
         return;
     }
-
-
     if (!item.sharedWith) {
         res.status(400).send('File or folder is not shared.');
         return;
     }
-
-
     const index = item.sharedWith.indexOf(sharedWithUser);
-
-
     if (index > -1) {
-        item.sharedWith.splice(index, 1);
-
-
-        db.write()
-.then(() => {
-                res.send('File or folder unshared successfully.');
-            })
-.catch(err => {
-                res.status(500).send('Error unsharing file or folder.');
-            });
+      item.sharedWith.splice(index, 1);
+      db.write().then(() => {
+          res.send('File or folder unshared successfully.');
+        })
+        .catch(err => {
+          res.status(500).send('Error unsharing file or folder.');
+        });
     } else {
         res.status(400).send('File or folder is not shared with this user.');
     }
@@ -601,34 +626,19 @@ router.post('/download', async (req, res) => {
   let files = []
   let allfiles = [];
   for(let i=0;i<fileDirArr.length;i++){
-    if(fileDirArr[i].type == 'directory'){
+    if(fileDirArr[i].type == 'directory'){ //分开要下载的文件夹和文件
       dirs.push(fileDirArr[i]);
     }else{
-      //files.push(fileDirArr[i]);
-      allfiles.push({name: fileDirArr[i].name, path: basePath})
+      allfiles.push({name: fileDirArr[i].name, path: fileDirArr[i].path});
     }
   }
-  if(dirs && dirs.length>0){
-    for(let i=0;i<dirs.length;i++){
-      let filename = username + '_' + dirs[i].name + '.zip';
-      utils.info(path.join(ziptempPath, filename));
-      let output = fs.createWriteStream(path.join(ziptempPath, filename));
-      let tf = await utils.doZip(path.join(basePath, dirs[i].name), path.join(ziptempPath, filename));
-      if(tf == true){
-        //dirs[i].zipfile = filename;
-        allfiles.push({name:filename, path: ziptempPath});
-      }else{
-        utils.error(filename + ' compress fail');
-      }
-    }
-  }
-  utils.info('allfiles='+JSON.stringify(allfiles));
-  if (Array.isArray(allfiles) && allfiles.length > 0) {
+  // 要分两种情况：如果只有一个，且是文件，则下载；否则要打包在一起下载
+  if(allfiles.length == fileDirArr.length && fileDirArr.length == 1){
     let index = 0;
     const downloadNextFile = () => {
       if (index < allfiles.length) {
         const fileName = allfiles[index].name;
-        const filePath = path.join(allfiles[index].path, fileName);
+        const filePath = allfiles[index].path;//path.join(allfiles[index].path, fileName);
         // 直接使用 res.download 方法进行下载
         res.download(filePath, fileName, (err) => {
           if (err) {
@@ -644,45 +654,98 @@ router.post('/download', async (req, res) => {
       }
     };
     downloadNextFile();
-  } else {
-    res.statusCode = 400;
-    res.end('Invalid request. Please provide a valid list of files to download.');
+    return;
   }
-  //if(allfiles && allfiles.length>0){
-    
-    /*
-    for(let i=0;i<allfiles.length;i++){
-      if(!allfiles[i].name){
-        continue;
-      }
-      const filePath = path.join(allfiles[i].path, allfiles[i].name);
-      const fileStream = fs.createReadStream(filePath);
-      res.setHeader('Content-Disposition', `attachment; filename=${allfiles[i].name}`);
-      fs.stat(filePath, (err, stats)=>{
-        if(err){
-          res.statusCode = 500;
-          res.end(`Error reading file: ${err}`);
-          return;
-        }
-        res.setHeader('Content-Length', stats.size);
-        fileStream.pipe(res);
-        fileStream.on('end', () => {
-          //index++;
-          //if (index === fileNames.length) {
-          if (i === allfiles.length-1) {
-              res.end();
+  // 要下载的列表中包含了目录，则要进行压缩
+  let zipFilename = username + '-' + utils.timeStrNoSep() + '.zip'; //设置压缩文件名
+  let zipfileFullPath = path.join(ziptempPath, zipFilename);
+  let sourcepaths = [];
+  fileDirArr.forEach(item=>{
+    sourcepaths.push(item.path);
+  });
+  await utils.compressFiles(sourcepaths, zipfileFullPath);
+  let ziparr = [{name:zipFilename, path:zipfileFullPath}];
+  if(ziparr.length>0){
+    let index = 0;
+    const downloadNextFile = () => {
+      if (index < ziparr.length) {
+        res.download(ziparr[index].path, ziparr[index].name, (err)=>{
+          if(err){
+            res.statusCode = 500;
+            res.end(`Error downloading file: ${err}`);
+            return;
           }
+          index++;
+          downloadNextFile();
         });
-        fileStream.on('error', (err) => {
-          res.statusCode = 500;
-          res.end(`Error streaming file: ${err}`);
-        });
-      })
-    }*/
-  /*}else{
-    res.status(400).json({code:400, msg:'not found files'});
-  }*/
-})
+      } else {
+        res.end();
+      }
+    };
+    downloadNextFile();
+    return;
+  }
+});
+
+// 更新用户设置
+router.post('/updateSet', async (req, res) => {
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  const userIndex = db.data.users.findIndex(user => user.username === username);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: '用户未找到' });
+  }
+  // 更新用户的语言设置
+  if(isValid(req.body.lang)==true){
+    users[userIndex].lang = req.body.lang;
+  }
+  // 更新用户的样式设置
+  if(isValid(req.body.theme)==true){
+    users[userIndex].theme = req.body.theme;
+  }
+  await db.write();
+  res.status(200).json({code:200,msg:'设置成功'});
+});
+
+// 上传文件
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+router.post('/upload', upload.single('fileData'), (req, res) => {
+    const currentDirectory = req.body.currentDirectory;
+    const fileName = req.body.fileName;
+    const fileData = req.file.buffer; // 获取文件数据
+
+    console.log('当前目录:', currentDirectory);
+    console.log('文件名:', fileName);
+    console.log('文件数据大小:', fileData.length);
+    if(checkSession(req)==false){
+      res.status(400).json({code:400, msg:'need re-login'});
+      return;
+    }
+    const { username } = req.session.user;
+    const user = db.data.users.find(user => user.username === username);
+    // 构建完整的文件保存路径
+    let filePath = path.join(allRootFolder,user.rootFolderPath,currentDirectory, fileName);
+    filePath = utils.getUniqueFileName(path.join(allRootFolder,user.rootFolderPath,currentDirectory), fileName);
+    // 将文件数据写入指定路径
+    fs.writeFile(filePath, fileData, (err) => {
+        if (err) {
+            console.error('保存文件时出错:', err);
+            res.status(400).json({code:400,msg:'保存出错'});
+            return;
+        }
+        console.log('文件保存成功:', filePath);
+        //res.status(400).json({code:400,msg:'删除出错'});
+    });
+    res.status(200).json({code:200,result:true, msg:'文件上传成功'});
+    //res.send('文件上传成功');
+});
+
 router.get('/download/:filename', (req, res) => {
   const { username } = req.session.user;
   if (!username) {

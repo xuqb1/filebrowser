@@ -19,8 +19,8 @@
       <button id="my-files" class="action"><i class="fa fa-folder"></i><span id="my-filesSpan">我的文件</span></button>
       <button id="new-folder" class="action"><i class="fa fa-folder-plus"></i><span id="new-folderSpan">新建文件夹</span></button>
       <button id="new-file" class="action"><i class="fa fa-file"></i><span id="new-fileSpan">新建文件</span></button>
-      <button id="download-list" class="action"><i class="fa fa-download"></i><span id="downloadListSpan">下载列表</span></button>
-      <button id="upload-list" class="action"><i class="fa fa-upload"></i><span id="uploadListSpan">上传列表</span></button>
+      <button id="download-list" class="action" style="display:none;"><i class="fa fa-download"></i><span id="downloadListSpan">下载列表</span></button>
+      <button id="upload-list" class="action" style="display:none;"><i class="fa fa-upload"></i><span id="uploadListSpan">上传列表</span></button>
       <button id="share-list" class="action"><i class="fa fa-share-alt"></i><span id="sharedListSpan">共享列表</span></button>
       <button id="settings" class="action"><i class="fa fa-cog"></i><span id="settingsSpan">设置</span></button>
       <button id="logout" class="action"><i class="fa fa-sign-out-alt"></i><span id="logoutSpan">退出</span></button>
@@ -70,8 +70,8 @@
           </div>
           <div class="baseHeaderIcons" id="baseHeaderIcons"><!-- 基本操作按钮 -->
             <!--<div class="circleDiv" title="激活shell"><i class="fa fa-terminal" alt="shell"></i></div>-->
-            <div class="circleDiv" title="切换到小图标模式" id="switchShowStyleDiv" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i></div>
-            <div class="circleDiv" title="下载" id="downloadIcon" onclick="downloadFiles()">
+            <div class="circleDiv" title="切换到小图标模式" id="switchShowStyleDiv"><i class="fas fa-th" alt="list"></i></div>
+            <div class="circleDiv" title="下载" id="downloadIcon">
               <div class="icon-container">
                 <div class="icon">
                   <i class="fa fa-chevron-down" alt="download"></i>
@@ -81,7 +81,7 @@
             </div>
             <div class="circleDiv" title="上传" id="uploadIcon"><i class="fa fa-chevron-up" alt="upload"></i></div>
             <div class="circleDiv" title="信息" id="infoIcon"><i class="fa fa-info-circle"></i></div>
-            <div class="circleDiv" title="选择多个" id="multiselIcon"><i class="fa fa-check-circle"></i></div>
+            <div class="circleDiv" title="选择多个" id="multiselIcon" style="display:none;"><i class="fa fa-check-circle"></i></div>
             <div class="circleDiv" title="用户" id="userIcon"><i class="fa fa-user"></i></div>
           </div>
         </div>
@@ -92,8 +92,8 @@
         </div>
       </header>
       <div id="dropdownOptMenu"><!--手机模式时，右上角更多图标单击列出下拉操作菜单-->
-        <div class="dropdownMenuItem" title="切换显示方式" id="switchShowStyleDiv1" onclick="switchShowStyle()"><i class="fas fa-th" alt="list"></i><span>切换显示方式</span></div>
-        <div class="dropdownMenuItem" title="下载" id="downloadIcon1" onclick="downloadFiles()">
+        <div class="dropdownMenuItem" title="切换显示方式" id="switchShowStyleDiv1"><i class="fas fa-th" alt="list"></i><span>切换显示方式</span></div>
+        <div class="dropdownMenuItem" title="下载" id="downloadIcon1">
           <div class="icon-container">
             <div class="icon">
               <i class="fa fa-chevron-down" alt="download"></i>
@@ -104,27 +104,27 @@
         </div>
         <div class="dropdownMenuItem" title="上传" id="uploadIcon1"><i class="fa fa-chevron-up" alt="upload"></i><span>上传</span></div>
         <div class="dropdownMenuItem" title="信息" id="infoIcon1"><i class="fa fa-info-circle"></i><span>信息</span></div>
-        <div class="dropdownMenuItem" title="选择多个" id="multiselIcon1"><i class="fa fa-check-circle"></i><span>切换多/单选择</span></div>
+        <div class="dropdownMenuItem" title="选择多个" id="multiselIcon1" style="display:none;"><i class="fa fa-check-circle"></i><span>切换多/单选择</span></div>
       </div>
       <div id="dropdownUserMenu"><!-- 电脑上大窗口显示时，右上角用户图标单击下拉显示语言、样式切换菜单 -->
         <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
-            <label for="languageSelect" class="form-label">语言:</label>
+          <div class="form-label" id="currentUserDiv">当前用户:</div><div id="userNameSpan"></div>
+        </div>
+        <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
+            <label for="languageSelect" class="form-label" id="languageLabel">语言:</label>
             <select id="languageSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
-                <option value="sys">随浏览器</option>
-                <option value="en-US">English</option>
-                <option value="zh-CN">中文</option>
+                <option value="browser" id="browserOption">随浏览器</option>
+                <option value="en-US" id="enOption">英文</option>
+                <option value="zh-CN" id="zhOption">中文</option>
             </select>
         </div>
         <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
-            <div for="themeSelect" class="form-label">样式:</div>
+            <div for="themeSelect" class="form-label" id="themeDiv">样式:</div>
             <select id="themeSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
-                <option value="sys">随系统</option>
-                <option value="light">浅色</option>
-                <option value="dark">深色</option>
+                <option value="0" id="sysOption">随系统</option>
+                <option value="1" id="lightOption">浅色</option>
+                <option value="2" id="darkOption">深色</option>
             </select>
-        </div>
-        <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
-            <a href="#" id="settings">设置</a>
         </div>
       </div>
       <div id="file-selection"><!-- 手机模式下，选择文件或文件夹后，显示下方的扩展操作工具条 -->
@@ -217,7 +217,7 @@
       </div>
     </main>
     <!--</div>-->
-    <!-- 新建文件夹的模态框 -->
+    <!-- 新建文件夹窗口 -->
     <div id="newFolderModal" class="modal">
       <div class="modal-content">
         <div class="modal-head">
@@ -237,8 +237,7 @@
       </div>
     </div>
 
-
-    <!-- 新建文件的模态框 -->
+    <!-- 新建文件窗口 -->
     <div id="newFileModal" class="modal">
       <div class="modal-content">
         <div class="modal-head">
@@ -257,8 +256,50 @@
         </form>
       </div>
     </div>
-
-     <div id="renameFileModal" class="modal">
+    
+    <!-- 上传文件窗口 -->
+    <div id="uploadModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">上传文件</div>
+          <span class="close" onclick="closeModal('uploadModal')">&times;</span>
+        </div>
+        <form id="uploadFileForm" label-position="top" >
+          <div style="margin-top:20px;">
+            <!--<label for="fileName">选择文件:</label>-->
+            <input type="file" class="form-control"  id="uploadfileName" required>
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <button type="submit" class="primaryBtn">确定</button>
+            <button type="button" class="normalBtn" onclick="closeModal('uploadModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- 文件或文件夹信息窗口 -->
+    <div id="infoModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">文件/文件夹信息</div>
+          <span class="close" onclick="closeModal('infoModal')">&times;</span>
+        </div>
+        <form id="infoFileForm" label-position="top" >
+          <div style="margin-top:20px;">
+            <div id="infoFileDiv"></div>
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <!--<button type="submit" class="primaryBtn">确定</button>-->
+            <button type="button" class="normalBtn" onclick="closeModal('infoModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="promptDiv" id="promptDiv">
+      <p id="promptP">多选模式已开启</p>
+      <div onclick='getElById("promptDiv").style.bottom="-4em";multiSelMode=false;'>&times;</div>
+    </div>
+    <!-- 重命名窗口 -->
+    <div id="renameFileModal" class="modal">
       <div class="modal-content">
         <div class="modal-head">
           <div class="modal-title">文件重命名</div>
@@ -276,7 +317,7 @@
         </form>
       </div>
     </div>
-    
+    <!-- 复制或移动窗口 -->
     <div id="copyFileModal" class="modal">
       <div class="modal-content">
         <div class="modal-head">
@@ -308,8 +349,27 @@
         </form>
       </div>
     </div>
-
-    <!-- 设置的模态框 -->
+    
+    <!-- 确认删除窗口 -->
+    <div id="deleteConfirmModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">删除确认</div>
+          <span class="close" onclick="closeModal('deleteConfirmModal')">&times;</span>
+        </div>
+        <form id="deleteConfirmForm" label-position="top">
+          <div style="margin-top:20px;">
+            <p id="deleteConfirmText">选择的文件、文件夹及其中的子文件、子文件夹都将被删除，且不可恢复。<br>你确定要删除选择的文件和文件夹吗？</p>
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <button type="submit" class="primaryBtn">确定</button>
+            <button type="button" class="normalBtn" onclick="closeModal('deleteConfirmModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- 设置窗口 -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
