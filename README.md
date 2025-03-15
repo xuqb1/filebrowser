@@ -12,7 +12,7 @@ npm 10.9.2
 
 下载，解压或克隆到 filebrowser 文件夹，打开命令行或终端，执行：
 ```
-npm install express multer bcrypt body-parser express-session lowdb lodash-id express-session
+npm install express multer bcrypt body-parser express-session lowdb lodash-id express-session multer
 ```
 创建文件夹 ssl，将自己生成的ssl或网络授权得到的ssl的相关文件放到该文件夹里
 
