@@ -26,12 +26,14 @@
       "banOutlink": false,
       "banShowUsedDiskSpace": false,
       "theme": 0,
-      "instanceName": "",
-      "systemIcon": "",
+      "lang": "browser",
+      "instanceName": "File Browser",
+      "systemIcon": "img/test1(1).png",
       "uploadBlockSize": "10MB",
       "uploadFailRetryTimes": 5,
       "defaultTotalDiskSpace": 1,
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "userRootFolderPath": "D:\\files"
     }
   ]
 }

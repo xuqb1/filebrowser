@@ -1110,6 +1110,13 @@ document.addEventListener('DOMContentLoaded', function () {
       if(obj){
         obj.remove();
       }
+    } else {
+      console.log('L1114 userInfo = ', userInfo);
+      getElById('userRootFolderInput').value = userInfo.global.userRootFolderPath;
+      getElById('defaultLang').value = userInfo.global.lang;
+      getElById('defaultTheme').value = userInfo.global.theme;
+      getElById('sysNameInput').value = userInfo.global.instanceName;
+      getElById('sysIconPreview').src = userInfo.global.systemIcon;
     }
   });
   // 下载列表菜单项，单击响应，显示已下载/正在下载列表
@@ -1210,7 +1217,7 @@ document.addEventListener('DOMContentLoaded', function () {
     selectedAfter();
     //console.log('L714 selectedFiles=', selectedFiles);
   });
-  
+  // 设置页面，标签单击响应，针对单击的标签做相应的初始化
   getElById('settingsTab').addEventListener('shown.bs.tab', function (event) {
     const target = event.target.getAttribute('data-bs-target');
     const tabPane = document.querySelector(target);
@@ -1261,6 +1268,81 @@ document.addEventListener('DOMContentLoaded', function () {
     alert('密码修改成功，请重新登录');
     logout.click();
   });
+  
+  getElById('sysIconInput').addEventListener('change', function(event){
+    const file = this.files[0];
+    let imagePreview = getElById('sysIconPreview');
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      imagePreview.src = '#';
+      imagePreview.style.display = 'none';
+    }
+  });
+  
+  getElById('globalSysViaForm').addEventListener('submit', async function(event){
+    event.preventDefault();
+    const sysNameInput = getElById('sysNameInput');
+    const fileInput = getElById('sysIconInput');
+    console.log('L1292 fileInput=', fileInput);
+    let file = fileInput.files[0];
+    if (isValid(file)==false){
+      //alert('请选择要上传的图片');
+      console.log('L1296 file=', file);
+      file = {};
+    }
+    const formData = new FormData();
+    // 模拟当前目录信息，这里只是一个示例字符串
+    formData.append('sysName', sysNameInput.value);
+    formData.append('fileName', file.name);
+    formData.append('fileData', file);
+    showOverlay();
+    fetch('updateNameIcon', {
+        method: 'POST',
+        body: formData
+      })
+      .then(async response => {
+        if(response == undefined || response == null){
+          alert('上传失败');
+          return;
+        }
+        let res = await response.json();
+        console.log('L1314 res=', res);
+        if(res.code == 400 && res.msg == 'need re-login'){
+          afterlogout();
+          hideOverlay();
+          return;
+        }
+        if(res.result == true){
+          alert('更新成功');
+          if(isValid(sysNameInput.value)==true){
+            userInfo.global.instanceName = sysNameInput.value;
+          }
+          if(isValid(file)==true){
+            userInfo.global.systemIcon = 'img/' + res.data;
+          }
+          getElById('sysHelpLink').innerHTML = userInfo.global.instanceName;
+          getElById('logoImg').src = userInfo.global.systemIcon;
+          sessionStorage.setItem('user', JSON.stringify(userInfo));
+        }else{
+          alert('更新失败');
+        }
+      })
+      .then(data => {
+        console.log('L1327 data=', data);
+      })
+      .catch(error => {
+        console.error('更新失败:', error);
+        alert('更新失败');
+      });
+      hideOverlay();
+  });
+  
   settingsModal.querySelector('form').addEventListener('submit', function (event) {
     event.preventDefault();
     const language = getElById('language').value;
@@ -1653,6 +1735,8 @@ async function resizeOrLoad(){
   replaceVar();
   selectedFiles = [];
   showFileList();
+  getElById('sysHelpLink').innerHTML = userInfo.global.instanceName;
+  getElById('logoImg').src = userInfo.global.systemIcon;
 }
 // 切换电脑浏览器还是手机显示模式
 function switchWinOrPhone(){

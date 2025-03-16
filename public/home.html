@@ -34,7 +34,7 @@
         <br> <p id="used-space">{usedDiskSpace} of {totalDiskSpace} used </p>
         <p>
           <span>
-            <a rel="noopener noreferrer" target="_blank" href="https://github.com/xuqb/fb/filebrowser">File Browser</a>
+            <a id="sysHelpLink" rel="noopener noreferrer" target="_blank" href="https://github.com/xuqb/fb/filebrowser">File Browser</a>
           <span id="filebrowserVersion">  {filebrowserVersion}</span>
           </span>
           <span>
@@ -251,12 +251,73 @@
                 </form>
               </div>
             </div>
+          
           </div>
           <div class="tab-pane fade" id="sharing-management" role="tabpanel" aria-labelledby="sharing-management-tab">
             <p>分享管理页面内容</p>
           </div>
           <div class="tab-pane fade" id="global-settings" role="tabpanel" aria-labelledby="global-settings-tab">
-            <p>全局设置页面内容</p>
+            <div class="row">
+              <div class="column">
+                <form class="card" id="globalUserViaForm">
+                  <div class="card-title">
+                    <h2>用户相关</h2>
+                  </div>
+                  <div class="card-content" style="margin-left:5em;">
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>主目录路径:</h3>
+                      <input class="input input--block" type="text" id="userRootFolderInput"
+                          placeholder="请填写用户主目录路径" name="userRootFolder"/>
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>默认语言:</h3>
+                      <select name="defaultLanguage" id="defaultLang" class="input input--block" style="width:10em;margin-left:1em;">
+                        <option value="browser">随浏览器</option>
+                        <option value="en-US">英文</option>
+                        <option value="zh-CN">中文 (简体)</option>
+                      </select>
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>默认主题:</h3>
+                      <select name="defaultTheme" id="defaultTheme" class="input input--block" style="width:10em;margin-left:1em;">
+                        <option value="0">随系统</option>
+                        <option value="1">浅色</option>
+                        <option value="2">暗色</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="card-action">
+                    <input class="button button--flat" type="submit" name="submitProfile" value="更新">
+                  </div>
+                </form>
+              </div>
+              <div class="column">
+                <form class="card" id="globalSysViaForm">
+                  <div class="card-title">
+                    <h2>系统相关</h2>
+                  </div>
+                  <div class="card-content" style="margin-left:5em;">
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>系统名称:</h3>
+                      <input class="input input--block" type="text" id="sysNameInput"
+                          placeholder="请填写系统名称" name="sysName"/>
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>系统图标:</h3>
+                      <input class="input input--block" type="file" id="sysIconInput" accept="image/*"/>
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>预览:</h3>
+                      <img id="sysIconPreview" src="img/logo.svg" width=48 height=48 style="margin-left:3em;"/>
+                    </div>
+                  </div>
+                  <div class="card-action">
+                    <input class="button button--flat" type="submit" name="submitPassword" value="更新">
+                  </div>
+                </form>
+              </div>
+            </div>
+          
           </div>
           <div class="tab-pane fade" id="user-management" role="tabpanel" aria-labelledby="user-management-tab">
             <p>用户管理页面内容</p>

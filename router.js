@@ -68,13 +68,17 @@ db.read()
         {
           banOutlink: false, 
           banShowUsedDiskSpace: false, 
+          lang: 'browser', 
           theme: 0, 
-          instanceName: '', 
-          systemIcon: '', 
+          instanceName: 'File Browser', 
+          systemIcon: 'img/logo.svg', 
           uploadBlockSize: '10MB', 
-          uploadFailRetryTimes: 5
+          uploadFailRetryTimes: 5, 
+          version: '1.0.0', 
+          userRootPath: allRootFolder
         }
       ]
+      console.log('L81 db.data.global=', db.data.global);
       db.write()
       .then(() => {
         utils.info('Admin user added successfully.');
@@ -176,6 +180,9 @@ router.post('/login', (req, res) => {
       delete rsuser.password;
       if(settings){
         rsuser.settings = JSON.parse(JSON.stringify(settings));
+      }
+      if(user.isAdmin == 1){
+        rsuser.global = db.data.global[0];
       }
       utils.info(username + ' Login successful.');
       res.status(200).json({code:200, msg: 'Login successful.', data: rsuser});
@@ -745,6 +752,53 @@ router.post('/upload', upload.single('fileData'), (req, res) => {
   });
   res.status(200).json({code:200,result:true, msg:'文件上传成功'});
   //res.send('文件上传成功');
+});
+
+router.post('/updateNameIcon', upload.single('fileData'), async (req, res) => {
+  const currentDirectory = path.join(__dirname, 'public', 'img');//req.body.currentDirectory;
+  const fileName = req.body.fileName;
+  let fileData = '';
+  if(utils.isValid(req.file)){
+    fileData = req.file.buffer; // 获取文件数据
+  }
+  const sysName = req.body.sysName;
+  let needUpdate = false;
+  let newFilename = '';
+  if(utils.isValid(fileName)==true && utils.isValid(fileData)==true && fileData.length>0){
+    let filePath = utils.getUniqueFileName(currentDirectory, fileName);
+    newFilename = path.basename(filePath);
+    console.log('完整文件名:', filePath);
+    console.log('文件数据大小:', fileData.length);
+    if(checkSession(req)==false){
+      res.status(400).json({code:400, msg:'need re-login'});
+      return;
+    }
+    const { username } = req.session.user;
+    const user = db.data.users.find(user => user.username === username);
+    // 将文件数据写入指定路径
+    fs.writeFile(filePath, fileData, (err) => {
+      if (err) {
+        console.error('保存文件时出错:', err);
+        res.status(400).json({code:400,msg:'保存出错'});
+        return;
+      }
+      console.log('文件保存成功:', filePath);
+      //res.status(400).json({code:400,msg:'删除出错'});
+      db.data.global[0].systemIcon = 'img/' + newFilename;
+      needUpdate = true;
+    });
+  }
+  
+  if(utils.isValid(sysName)==true){
+    db.data.global[0].instanceName;
+    needUpdate = true;
+  }
+  if(needUpdate == true){
+    await db.write();
+    res.status(200).json({code:200,result:true, msg:'更新成功', data: newFilename});
+  } else {
+    res.status(400).json({code:400,msg:'更新出错，没有需要更新的'});
+  }
 });
 
 router.post('/updatePwd', async (req, res) => {
