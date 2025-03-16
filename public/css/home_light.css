@@ -404,22 +404,7 @@ nav.action {
   text-overflow: ellipsis;
   border-bottom: 1px solid #eee;
   color: var(--textPrimary);
-}/*
-.action {
-    display: inline-block;
-    cursor: pointer;
-    transition: .2s ease all;
-    border: 0;
-    margin: 0;
-    color: var(--action);
-    border-radius: 50%;
-    background: transparent;
-    padding: 0;
-    box-shadow: none;
-    vertical-align: middle;
-    text-align: left;
-    position: relative;
-}*/
+}
 nav .action i {
   padding: .4em;
   transition: .1s ease-in-out all;
@@ -961,4 +946,62 @@ main {
 .promptDiv div i {
   display: inline-block;
   line-height: 1;
+}
+
+
+.nav-tabs .nav-link {
+  margin-bottom: calc(-1 * var(--bs-nav-tabs-border-width));
+  background: 0 0;
+  border: var(--bs-nav-tabs-border-width) solid transparent;
+  border-top-left-radius: 0px;/*var(--bs-nav-tabs-border-radius);*/
+  border-top-right-radius: 0px;/*var(--bs-nav-tabs-border-radius);*/
+  padding-bottom: 1em;
+}
+.row {
+  display: flex;
+  margin: 0px -0.5em;
+  flex-wrap: wrap;
+  padding-top: 1em;
+}
+@media (max-width: 1200px){
+  .row .column {
+    width: 100%;
+  }
+}
+.row .column {
+  display: flex;
+  padding: 0px 0.5em;
+  width: 50%;
+}
+.row .column .card {
+  flex-grow: 1;
+}
+.card {
+  position: relative;
+  margin: 0px 0px 1rem;
+  background: var(--surfacePrimary);
+  color: var(--textSecondary);
+  border-radius: 2px;
+  box-shadow: rgba(0, 0, 0, 0.14) 0px 2px 2px, rgba(0, 0, 0, 0.12) 0px 1px 5px, rgba(0, 0, 0, 0.2) 0px 3px 1px -2px;
+  overflow: auto;
+}
+.card > div:first-child {
+    padding-top: 1.5em;
+}
+.card .card-title {
+    padding: 1.5em 1em 1em;
+    display: flex;
+}
+.card > div {
+    padding: 1em;
+}
+.card h3 {
+  color: var(--textPrimary);
+  font-size: 20px;/*1em;*/
+  font-weight: 500;
+  /*margin: 2em 0px 1em;*/
+  margin-right: 1em;
+}
+.card .card-action {
+  text-align: right;
 }

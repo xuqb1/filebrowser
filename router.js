@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const CryptoJS = require('crypto-js');
 const fs = require('fs');
 const path = require('path');
 const { Low } = require('lowdb');
@@ -701,11 +702,11 @@ router.post('/updateSet', async (req, res) => {
     return res.status(404).json({ error: '用户未找到' });
   }
   // 更新用户的语言设置
-  if(isValid(req.body.lang)==true){
+  if(utils.isValid(req.body.lang)==true){
     users[userIndex].lang = req.body.lang;
   }
   // 更新用户的样式设置
-  if(isValid(req.body.theme)==true){
+  if(utils.isValid(req.body.theme)==true){
     users[userIndex].theme = req.body.theme;
   }
   await db.write();
@@ -716,34 +717,60 @@ router.post('/updateSet', async (req, res) => {
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 router.post('/upload', upload.single('fileData'), (req, res) => {
-    const currentDirectory = req.body.currentDirectory;
-    const fileName = req.body.fileName;
-    const fileData = req.file.buffer; // 获取文件数据
+  const currentDirectory = req.body.currentDirectory;
+  const fileName = req.body.fileName;
+  const fileData = req.file.buffer; // 获取文件数据
 
-    console.log('当前目录:', currentDirectory);
-    console.log('文件名:', fileName);
-    console.log('文件数据大小:', fileData.length);
-    if(checkSession(req)==false){
-      res.status(400).json({code:400, msg:'need re-login'});
+  console.log('当前目录:', currentDirectory);
+  console.log('文件名:', fileName);
+  console.log('文件数据大小:', fileData.length);
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const user = db.data.users.find(user => user.username === username);
+  // 构建完整的文件保存路径
+  let filePath = path.join(allRootFolder,user.rootFolderPath,currentDirectory, fileName);
+  filePath = utils.getUniqueFileName(path.join(allRootFolder,user.rootFolderPath,currentDirectory), fileName);
+  // 将文件数据写入指定路径
+  fs.writeFile(filePath, fileData, (err) => {
+    if (err) {
+      console.error('保存文件时出错:', err);
+      res.status(400).json({code:400,msg:'保存出错'});
       return;
     }
-    const { username } = req.session.user;
-    const user = db.data.users.find(user => user.username === username);
-    // 构建完整的文件保存路径
-    let filePath = path.join(allRootFolder,user.rootFolderPath,currentDirectory, fileName);
-    filePath = utils.getUniqueFileName(path.join(allRootFolder,user.rootFolderPath,currentDirectory), fileName);
-    // 将文件数据写入指定路径
-    fs.writeFile(filePath, fileData, (err) => {
-        if (err) {
-            console.error('保存文件时出错:', err);
-            res.status(400).json({code:400,msg:'保存出错'});
-            return;
-        }
-        console.log('文件保存成功:', filePath);
-        //res.status(400).json({code:400,msg:'删除出错'});
-    });
-    res.status(200).json({code:200,result:true, msg:'文件上传成功'});
-    //res.send('文件上传成功');
+    console.log('文件保存成功:', filePath);
+    //res.status(400).json({code:400,msg:'删除出错'});
+  });
+  res.status(200).json({code:200,result:true, msg:'文件上传成功'});
+  //res.send('文件上传成功');
+});
+
+router.post('/updatePwd', async (req, res) => {
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  const encryptedPassword = req.body.pwd;
+  const userIndex = db.data.users.findIndex(user => user.username === username);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: '用户未找到' });
+  }
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedPassword, user.id+user.username);
+    const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+    console.log('Decrypted Password:', decryptedPassword);
+
+    const hash = bcrypt.hashSync(decryptedPassword, 10);
+    console.log('加密后的密码:', hash);
+    user.password = hash;
+    users[userIndex].password = hash;
+    await db.write();
+    res.status(200).json({code:200,msg:'密码修改成功'});
+  } catch (error) {
+    console.error('Decryption error:', error);
+    res.status(500).json({ error: '密码修改失败' });
+  }
 });
 
 router.get('/download/:filename', (req, res) => {

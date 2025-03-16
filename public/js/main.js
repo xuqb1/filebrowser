@@ -175,15 +175,38 @@ function releaseSelStatus(excludeId){
   }
   root = document.documentElement;
   computedStyle = getComputedStyle(root);
+  
+  if(userInfo.theme == '0'){
+    isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }else if(userInfo.theme == '1'){
+    isDarkMode = false;
+    window.matchMedia('(prefers-color-scheme: light)').matches;
+  }else {
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
+    isDarkMode = true;
+  }
   backgroundColor = computedStyle.getPropertyValue('--surfacePrimary');//background
   textColor = computedStyle.getPropertyValue('--textPrimary');
-  isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if(isDarkMode == false){
+    backgroundColor = '';//computedStyle.getPropertyValue('--background');//
+    textColor = '';
+  }else{
+    backgroundColor = 'rgb(40,40,40)';
+    textColor = '#b4cbd2';
+  }
+  //console.log('L187 isDarkMode=', isDarkMode);
+  //console.log('L194 backgroundColor=', backgroundColor);
   //console.log('L137 selMenuId=', selMenuId);
-  let selObj = getElById(excludeId);
-  selObj.style.backgroundColor = '#1d99f3';
-  selObj.style.color = '#ffffff';
-  removeEvent(selObj, 'mouseover', menuMouseOverBgColor);
-  removeEvent(selObj, 'mouseleave', menuMouseLeaveBgColor);
+  if(isValid(excludeId)==true){
+    let selObj = getElById(excludeId);
+    if(selObj){
+      selObj.style.backgroundColor = '#1d99f3';
+      selObj.style.color = '#ffffff';
+      removeEvent(selObj, 'mouseover', menuMouseOverBgColor);
+      removeEvent(selObj, 'mouseleave', menuMouseLeaveBgColor);
+    }
+  }
+  
   ids.forEach(item=>{
     if(item != excludeId){
       let obj = getElById(item);
@@ -519,9 +542,9 @@ async function downloadFiles(){
 // 左侧功能菜单项的鼠标悬停事件绑定函数
 function menuMouseOverBgColor(){
   this.style.backgroundColor = '#e1e1e1';
-  if(isDarkMode){
-    this.style.color = backgroundColor;
-  }
+  //if(isDarkMode){
+    this.style.color = computedStyle.getPropertyValue('--blue');//backgroundColor;
+  //}
 }
 // 左侧功能菜单项的鼠标移开事件绑定函数
 function menuMouseLeaveBgColor(){
@@ -557,6 +580,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const userIcon = getElById("userIcon");
   
   const languageSelect = getElById("languageSelect");
+  const themeSelect = getElById("themeSelect");
   
   //手机模式下，左上角切换功能菜单按钮
   const switchMenuListBtn = getElById("switchMenulistBtn");
@@ -586,19 +610,18 @@ document.addEventListener('DOMContentLoaded', function () {
   const copyFileModal = getElById("copyFileModal");     //复制选择目标目录窗口
   const deleteConfirmModal = getElById("deleteConfirmModal");//确认删除窗口
   
-  
-  
   // 主页加载时，默认查询用户根目录下的文件夹和文件，并列出来
   getFiles();
   
   // 单击左侧我的文件菜单项，刷新当前目录下的文件夹和文件列表
   myFiles.addEventListener('click', function () {
+    hidePages();
     showDomObj('dirNav', 'flex');
     showDomObj('listing', '');
     showDomObj('main-content', 'flex');
-    hideDomObj('editfile-page');
-    hideDomObj('previewimage-page');
-    hideDomObj('settings-page');
+    //hideDomObj('editfile-page');
+    //hideDomObj('previewimage-page');
+    //hideDomObj('settings-page');
     selMenuId = 'my-files';
     getFiles();
   });
@@ -676,28 +699,28 @@ document.addEventListener('DOMContentLoaded', function () {
       alert('创建文件失败.');
     }
   });
-  
+  // 切换文件文件夹列表模式：表格，小图标，大图标
   switchShowStyleDiv.addEventListener('click', function(){
     switchShowStyle();
   })
   switchShowStyleDiv1.addEventListener('click', function(){
     switchShowStyle();
   })
-  
+  // 下载图标，单击响应，执行对选中的文件、文件夹进行下载
   downloadIcon.addEventListener('click', function(){
     downloadFiles();
   })
   downloadIcon1.addEventListener('click', function(){
     downloadFiles();
   })
-  
+  // 上传图标，单击响应，显示上传文件窗口
   uploadIcon.addEventListener('click', function(){
     showDomObj('uploadModal', 'block');
   })
   uploadIcon1.addEventListener('click', function(){
     showDomObj('uploadModal', 'block');
   })
-  
+  // 文件或文件夹的信息图标，单击响应，显示文件/文件夹信息窗口
   infoIcon.addEventListener('click', function(){
     showDomObj('infoModal', 'block');
     setShowFileInfo();
@@ -706,6 +729,7 @@ document.addEventListener('DOMContentLoaded', function () {
     showDomObj('infoModal', 'block');
     setShowFileInfo();
   })
+  // 单击单选、多选模式切换图标，暂时不用
   multiselIcon.addEventListener('click', function(){
     multiSelMode = !multiSelMode;
     if(multiSelMode == true){
@@ -856,6 +880,7 @@ document.addEventListener('DOMContentLoaded', function () {
     showDomObj('copyFileModal', 'block');
     listDirForSel();
   });
+  
   // 单击删除图标，弹出确认删除对话框，确认后执行删除
   deleteIcon.addEventListener('click', function () {
     showDomObj(deleteConfirmModal, 'block');
@@ -925,7 +950,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
-  
+  // 删除文件或文件夹的确认窗口，提交时，执行删除动作
   deleteConfirmModal.querySelector('form').addEventListener('submit',async  function (event) {
     let data = {
       selectedFiles: selectedFiles
@@ -959,8 +984,9 @@ document.addEventListener('DOMContentLoaded', function () {
         obj.style.transform = 'scale(0)';
       }else{
         obj.style.transform = 'scale(1)';
-        console.log('L962 userInfo=', userInfo);
+        //console.log('L962 userInfo=', userInfo);
         getElById('languageSelect').value = userInfo.lang;
+        getElById('themeSelect').value = userInfo.theme;
         getElById('userNameSpan').innerHTML = userInfo.username;
       }
     }
@@ -996,16 +1022,29 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   })
-  
+  // 语言下拉框选择被修改后，对系统语言进行修改
   languageSelect.addEventListener('change', async function(){
     const selectedValue = this.value;
-    console.log('L1000 selectedValue='+selectedValue);
+    //console.log('L1000 selectedValue='+selectedValue);
     let obj = getElById('dropdownUserMenu');
     if(obj){
       obj.style.transform = 'scale(0)';
     }
     await switchLang(selectedValue);
     replaceVar();
+  });
+  // 样式下拉框选择被修改后，对系统浅、暗样式进行刷新
+  themeSelect.addEventListener('change', async function(){
+    const selectedValue = this.value;
+    //console.log('L1014 selectedValue='+selectedValue);
+    let obj = getElById('dropdownUserMenu');
+    if(obj){
+      obj.style.transform = 'scale(0)';
+    }
+    //console.log('L1037 themeSelect change value');
+    await applyColorScheme(selectedValue);
+    window.location.reload();
+    //releaseSelStatus('my-files');
   });
   // 点击页面其他地方隐藏用户下拉菜单或操作下拉菜单
   document.addEventListener('click', function (event) {
@@ -1030,17 +1069,48 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
   });
-  
-  
-  
+
   // 左侧设置菜单项，单击响应：切换我的文件与设置菜单项的选择
   settings.addEventListener('click', function () {
     settings.style.backgroundColor = '#1d99f3';
     settings.style.color = '#ffffff';
     removeEvent(settings, 'mouseover', menuMouseOverBgColor);
     removeEvent(settings, 'mouseleave', menuMouseLeaveBgColor);
+    //console.log('L1071 settings click');
     releaseSelStatus('settings')
-    hideDomObjExcludeObj('settings-page', '');
+    hidePages();
+    showDomObj('settings-page', '');
+    //console.log('L1083 userInfo=', userInfo);
+    getElById('selectLanguage').value = userInfo.lang;
+    getElById('selectTheme').value = userInfo.theme;
+    getElById('newPwdInput').value = '';
+    getElById('confirmPwdInput').value = '';
+    if(userInfo && userInfo.isAdmin != 1){
+      let obj = getElById('sharing-managementLi');
+      if(obj){
+        obj.remove();
+      }
+      obj = getElById('global-settingsLi');
+      if(obj){
+        obj.remove();
+      }
+      obj = getElById('user-managementLi');
+      if(obj){
+        obj.remove();
+      }
+      obj = getElById('sharing-management');
+      if(obj){
+        obj.remove();
+      }
+      obj = getElById('global-settings');
+      if(obj){
+        obj.remove();
+      }
+      obj = getElById('user-management');
+      if(obj){
+        obj.remove();
+      }
+    }
   });
   // 下载列表菜单项，单击响应，显示已下载/正在下载列表
   downloadList.addEventListener('click', function () {
@@ -1048,6 +1118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     downloadList.style.color = '#ffffff';
     removeEvent(downloadList, 'mouseover', menuMouseOverBgColor);
     removeEvent(downloadList, 'mouseleave', menuMouseLeaveBgColor);
+    //console.log('L1081 downloadList click');
     releaseSelStatus('download-list')
   });
   // 上传列表菜单项，单击响应，显示已上传/正在上传列表
@@ -1056,14 +1127,19 @@ document.addEventListener('DOMContentLoaded', function () {
     uploadList.style.color = '#ffffff';
     removeEvent(uploadList, 'mouseover', menuMouseOverBgColor);
     removeEvent(uploadList, 'mouseleave', menuMouseLeaveBgColor);
+    //console.log('L1090 uploadList click');
     releaseSelStatus('upload-list')
   });
+  // 共享列表菜单项，单击响应，显示共享列表
   shareList.addEventListener('click', function () {
     shareList.style.backgroundColor = '#1d99f3';
     shareList.style.color = '#ffffff';
     removeEvent(shareList, 'mouseover', menuMouseOverBgColor);
     removeEvent(shareList, 'mouseleave', menuMouseLeaveBgColor);
+    //console.log('L1090 shareList click');
     releaseSelStatus('share-list')
+    hidePages();
+    showDomObj('share-page', '');
   });
   // 退出菜单项单击，退出系统
   logout.addEventListener('click', async function(){
@@ -1135,6 +1211,56 @@ document.addEventListener('DOMContentLoaded', function () {
     //console.log('L714 selectedFiles=', selectedFiles);
   });
   
+  getElById('settingsTab').addEventListener('shown.bs.tab', function (event) {
+    const target = event.target.getAttribute('data-bs-target');
+    const tabPane = document.querySelector(target);
+    //console.log('L1186 target=', target);
+    if (target === '#personal-settings') {
+      // 设置表单值
+      getElById('selectLanguage').value = userInfo.lang;
+      getElById('selectTheme').value = userInfo.theme;
+      getElById('newPwdInput').value = '';
+      getElById('confirmPwdInput').value = '';
+    }
+  });
+  // 个人设置表单中可同时修改语言和主题样式
+  getElById('profileForm').addEventListener('submit', async function(event){
+    let lang = getElById('selectLanguage').value;
+    let theme = getElById('selectTheme').value;
+    if(lang == userInfo.lang && theme == userInfo.theme){
+      return;
+    }
+    if(lang != userInfo.lang){
+      userInfo.lang = lang;
+      await switchLang(lang);
+      replaceVar();
+    }
+    if(theme != userInfo.theme){
+      await applyColorScheme(theme);
+      window.location.reload();
+    }
+  });
+  getElById('changePwdForm').addEventListener('submit', async function(event){
+    event.preventDefault();
+    let newpwd = getElById('newPwdInput').value;
+    let confirmpwd = getElById('confirmPwdInput').value;
+    if(isValid(newpwd)==false || isValid(confirmpwd)==false){
+      alert('新密码或确认密码为空');
+      return;
+    }
+    if(newpwd != confirmpwd || newpwd.length < 6){
+      alert('新密码与确认密码不一致，或长度小于6个字符')
+      return;
+    }
+    let pwd = CryptoJS.AES.encrypt(newpwd, userInfo.id+userInfo.username).toString();
+    let res = await fetchDataPost('updatePwd', {'pwd': pwd});
+    if(checkResponse(res, '更新密码失败')==false){
+      console.error('L1574 res=', res);
+      return;
+    }
+    alert('密码修改成功，请重新登录');
+    logout.click();
+  });
   settingsModal.querySelector('form').addEventListener('submit', function (event) {
     event.preventDefault();
     const language = getElById('language').value;
@@ -1194,24 +1320,53 @@ document.addEventListener('DOMContentLoaded', function () {
       hideDomObj(infoModal);
     }
   };
+  //console.log('L1230 DOMContentLoaded ..');
   resizeOrLoad();
 });
 // 窗口调整大小
 window.addEventListener('resize', async function() {
+  //console.log('L1235 resize ...');
   resizeOrLoad();
 });
 // 页面加载完成后执行
 window.addEventListener('load', async function() {
-  resizeOrLoad();
+  //console.log('L1240 load ....');
+  //resizeOrLoad();
 });
 let mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 // 监听媒体查询的变化
 if (mediaQuery.addEventListener) {
   // 现代浏览器支持 addEventListener
+  //console.log('L1244 mediaQuery event listener');
   mediaQuery.addEventListener('change', releaseSelStatus);
 } else {
   // 旧版浏览器支持 addListener
+  //console.log('L1248 mediaQuery event listener');
   mediaQuery.addListener(releaseSelStatus);
+}
+const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+const lightStylesheet = document.querySelector('link[href="css/home_light.css"]');
+const darkStylesheet = document.querySelector('link[href="css/home_dark.css"]');
+async function applyColorScheme(scheme) {
+  let res = await fetchDataPost('updateSet', {'theme': scheme});
+  if(checkResponse(res, '')==false){
+    console.error('L1574 res=', res);
+    return;
+  }
+  userInfo.theme = scheme;
+  sessionStorage.setItem('user', JSON.stringify(userInfo));
+  if (scheme == '0') { // 随系统设置
+    lightStylesheet.media = '(prefers-color-scheme: light)';
+    darkStylesheet.media = '(prefers-color-scheme: dark)';
+  } else if (scheme == '1') { //浅色
+    lightStylesheet.media = 'all';
+    darkStylesheet.media = 'not all';
+  } else if (scheme == '2') { //深色
+    lightStylesheet.media = 'not all';
+    darkStylesheet.media = 'all';
+  }
+  //const event = new Event('change');
+  //prefersDarkScheme.dispatchEvent(event);
 }
 // 为移动或复制文件、文件夹，对弹出窗口中的目录列表及路径导航条进行加载
 function listDirForSel(){
@@ -1487,8 +1642,10 @@ async function setNewFolderListByPath(path){
 // 页面加载完成或重设置大小时执行
 async function resizeOrLoad(){
   userInfo = JSON.parse(sessionStorage.getItem('user'));
+  await applyColorScheme(userInfo.theme);
+  //console.log('L1548 resizeOrLoad ..');
   releaseSelStatus('my-files');
-  switchWinOrPhone()
+  switchWinOrPhone();
   await getUsedSpace();
   //console.log('L735 diskSpace=', diskSpace);
   await getVersion();
@@ -1715,6 +1872,16 @@ function replaceVar(){
   }
   // 更新页面内容
   //document.getElementById('output').innerHTML = replacedHtml;
+}
+// 切换：文件列表（包括路径导航条），搜索页面，下载页面，上传页面，共享页面，
+// 设置页面, 文本文件编辑页面, 图片预览页面
+function hidePages(){
+  let allPageIds = ['dirNav', 'listing', 'search-page', 'download-page', 
+      'upload-page', 'share-page', 'settings-page', 'editfile-page', 'previewimage-page'];
+  allPageIds.forEach(item=>{
+    hideDomObj(item);
+  });
+  //showDomObj(excludeObjId, '');
 }
 /*
 //完全加载后，图片加载前

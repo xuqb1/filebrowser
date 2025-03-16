@@ -3,12 +3,12 @@
     {
       "id": "1735914131292",
       "username": "admin",
-      "password": "$2b$10$MTgT8CxjqsTvJv.c5VAwc.d.ndm1O2ivcbdH3tqAWR05KR6gG8bCK",
+      "password": "$2b$10$6ZRH4yTDvoOCLJwtfoetkOcqqEWl0xBI9psv/vuoH/MewB5YKYhVu",
       "rootFolderPath": "",
       "isAdmin": 1,
       "totalDiskSpace": 1,
       "lang": "browser",
-      "theme": 0
+      "theme": "0"
     }
   ],
   "settings": [

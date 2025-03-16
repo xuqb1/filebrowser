@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="css/home_light.css" media="(prefers-color-scheme: light)">
     <link rel="stylesheet" href="css/home_dark.css" media="(prefers-color-scheme: dark)">
     <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/crypto.js"></script>
+    <script src="./bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
   </head>
   <body>
     <div class="overlay" style="display: none;"></div>
@@ -85,7 +87,7 @@
             <div class="circleDiv" title="用户" id="userIcon"><i class="fa fa-user"></i></div>
           </div>
         </div>
-        <!-- 手机模式下，显示这个 -->
+        <!-- 手机模式下，右上角显示搜索和更多两个图标 -->
         <div class="header-right" id="header-right1" style="display:none;">
           <div class="circleDiv" title="搜索" id="searchDiv"><i class="fa fa-search" alt="search"></i></div>
           <div class="circleDiv" title="更多" id="moreDiv"><i class="fa fa-ellipsis-v" alt="more"></i></div>
@@ -171,8 +173,95 @@
         </div>
         <div id="main-content" ></div>
       </div>
-      <div class="settings-page" id="settings-page" style="display:none"><!-- 设置页面 -->
-        设置页面
+      <div class="download-page" id="download-page" style="display:none"><!-- 下载列表页面 -->
+        下载列表页面
+      </div>
+      <div class="upload-page" id="upload-page" style="display:none"><!-- 上传列表页面 -->
+        上传列表页面
+      </div>
+      <div class="share-page" id="share-page" style="display:none"><!-- 共享列表页面 -->
+        共享列表页面
+      </div>
+      <div class="settings-page container mt-5" id="settings-page" style="display:none"><!-- 设置页面 -->
+        <ul class="nav nav-tabs" id="settingsTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="personal-settings-tab" data-bs-toggle="tab" data-bs-target="#personal-settings" type="button" role="tab" aria-controls="personal-settings" aria-selected="true">个人设置</button>
+          </li>
+          <li class="nav-item" role="presentation" id="sharing-managementLi">
+            <button class="nav-link" id="sharing-management-tab" data-bs-toggle="tab" data-bs-target="#sharing-management" type="button" role="tab" aria-controls="sharing-management" aria-selected="false">分享管理</button>
+          </li>
+          <li class="nav-item" role="presentation" id="global-settingsLi">
+            <button class="nav-link" id="global-settings-tab" data-bs-toggle="tab" data-bs-target="#global-settings" type="button" role="tab" aria-controls="global-settings" aria-selected="false">全局设置</button>
+          </li>
+          <li class="nav-item" role="presentation" id="user-managementLi">
+            <button class="nav-link" id="user-management-tab" data-bs-toggle="tab" data-bs-target="#user-management" type="button" role="tab" aria-controls="user-management" aria-selected="false">用户管理</button>
+          </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="personal-settings" role="tabpanel" aria-labelledby="personal-settings-tab">
+            <div class="row">
+              <div class="column">
+                <form class="card" id="profileForm">
+                  <div class="card-title">
+                    <h2>个人设置</h2>
+                  </div>
+                  <div class="card-content" style="margin-left:5em;">
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>语言:</h3>
+                      <select name="selectLanguage" id="selectLanguage" class="input input--block" style="width:10em;">
+                        <option value="browser">随浏览器</option>
+                        <option value="en-US">英文</option>
+                        <option value="zh-CN">中文 (简体)</option>
+                      </select>
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>主题:</h3>
+                      <select name="selectTheme" id="selectTheme" class="input input--block" style="width:10em;">
+                        <option value="0">随系统</option>
+                        <option value="1">浅色</option>
+                        <option value="2">暗色</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="card-action">
+                    <input class="button button--flat" type="submit" name="submitProfile" value="更新">
+                  </div>
+                </form>
+              </div>
+              <div class="column">
+                <form class="card" id="changePwdForm">
+                  <div class="card-title">
+                    <h2>更改密码
+                    </h2>
+                  </div>
+                  <div class="card-content" style="margin-left:5em;">
+                    <div>
+                      <input class="input input--block" type="password" id="newPwdInput"
+                          placeholder="你的新密码" name="password" style="width:15em;">
+                    </div>
+                    <div>
+                      <input class="input input--block" type="password" id="confirmPwdInput"
+                          placeholder="再次输入以确认你的新密码" name="passwordConf" style="width:15em;">
+                    </div>
+                    
+                  </div>
+                  <div class="card-action">
+                    <input class="button button--flat" type="submit" name="submitPassword" value="更新">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="sharing-management" role="tabpanel" aria-labelledby="sharing-management-tab">
+            <p>分享管理页面内容</p>
+          </div>
+          <div class="tab-pane fade" id="global-settings" role="tabpanel" aria-labelledby="global-settings-tab">
+            <p>全局设置页面内容</p>
+          </div>
+          <div class="tab-pane fade" id="user-management" role="tabpanel" aria-labelledby="user-management-tab">
+            <p>用户管理页面内容</p>
+          </div>
+        </div>
       </div>
       </div>
       <div class="editfile-page" id="editfile-page" style="display:none"><!-- 编辑文件页面 -->
@@ -215,6 +304,7 @@
           </p>
         </div>
       </div>
+      
     </main>
     <!--</div>-->
     <!-- 新建文件夹窗口 -->
