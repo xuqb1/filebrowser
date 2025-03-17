@@ -114,15 +114,15 @@
         </div>
         <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
             <label for="languageSelect" class="form-label" id="languageLabel">语言:</label>
-            <select id="languageSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
+            <select id="languageSelect" class="form-select" style="width:140px;height:38px;margin-left:5px;">
                 <option value="browser" id="browserOption">随浏览器</option>
                 <option value="en-US" id="enOption">英文</option>
-                <option value="zh-CN" id="zhOption">中文</option>
+                <option value="zh-CN" id="zhOption">中文（简体）</option>
             </select>
         </div>
         <div class="menu-item" style="display:flex;height:42px;line-height:42px;">
             <div for="themeSelect" class="form-label" id="themeDiv">样式:</div>
-            <select id="themeSelect" class="form-select" style="width:120px;height:38px;margin-left:5px;">
+            <select id="themeSelect" class="form-select" style="width:140px;height:38px;margin-left:5px;">
                 <option value="0" id="sysOption">随系统</option>
                 <option value="1" id="lightOption">浅色</option>
                 <option value="2" id="darkOption">深色</option>
@@ -285,6 +285,14 @@
                         <option value="2">暗色</option>
                       </select>
                     </div>
+                    <div style="display:flex;height:3em;">
+                      <h3 style="min-width:5em;">&nbsp;</h3>
+                      <input class="form-check-input" type="checkbox" value="" id="allowUserLogupInput"
+                        style="min-width:1em;margin-right:10px;">
+                      <label class="form-check-label" for="allowUserLogupInput">
+                          允许用户注册
+                      </label>
+                    </div>
                   </div>
                   <div class="card-action">
                     <input class="button button--flat" type="submit" name="submitProfile" value="更新">
@@ -316,14 +324,92 @@
                   </div>
                 </form>
               </div>
+              <div class="column">
+                <form class="card" id="globalFileExtForm">
+                  <div class="card-title">
+                    <h2>文件后缀</h2>
+                  </div>
+                  <div class="card-content" style="margin-left:5em;">
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>文本文件:</h3>
+                      <input class="input input--block" type="text" id="txtFileExtInput"
+                          placeholder="请填写文本文件后缀" />
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>图片文件:</h3>
+                      <input class="input input--block" type="text" id="picFileExtInput"
+                          placeholder="请填写图片文件后缀" />
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>音频文件:</h3>
+                      <input class="input input--block" type="text" id="audFileExtInput"
+                          placeholder="请填写音频文件后缀" />
+                    </div>
+                    <div style="display:flex;height:3em;line-height:3em;">
+                      <h3>视频文件:</h3>
+                      <input class="input input--block" type="text" id="vidFileExtInput"
+                          placeholder="请填写视频文件后缀" />
+                    </div>
+                  </div>
+                  <div class="card-action">
+                    <input class="button button--flat" type="submit" name="submitFileExt" value="更新">
+                  </div>
+                </form>
+              </div>
             </div>
           
           </div>
           <div class="tab-pane fade" id="user-management" role="tabpanel" aria-labelledby="user-management-tab">
-            <p>用户管理页面内容</p>
+            <div class="row">
+              <div class="column">
+                <div class="card">
+                  <div class="card-title">
+                    <h2 style="margin-right:auto;">用户</h2>
+                    <button class="button" id="newUserBtn">新建</button>
+                  </div>
+                  <div class="card-content full  mt-5">
+                    <!--<div class="yscrollTableDiv">-->
+                      <table id="userTable" class="table-striped table-bordered" >
+                        <thead>
+                          <tr>
+                            <th style="width:50px;">
+                              <input type="checkbox" id="selectAll">
+                            </th>
+                            <th>用户名</th>
+                            <th>是否管理员</th>
+                            <th>根目录</th>
+                            <th>是否激活</th>
+                            <th>操作</th>
+                          </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <!-- 数据将通过 JavaScript 动态插入 -->
+                        </tbody>
+                      </table>
+                    <!--</div>-->
+                    <!--<div style="text-align:right;">-->
+                    <div class="d-flex align-items-center" style="justify-content: flex-end;">
+                      <div id="totalSizeUserTable">共x个</div>
+                      <div class="d-flex align-items-center" style="margin-left:2em;">
+                        <label for="itemsPerPageSelect" >每页</label>
+                        <select id="itemsPerPageSelectUserTable" class="form-select form-select-sm" style="width:5em;">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>个</span>
+                      </div>
+                      <div aria-label="Page navigation" style="margin-left:2em;">
+                          <ul class="pagination" id="paginationUserTable"></ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
       </div>
       <div class="editfile-page" id="editfile-page" style="display:none"><!-- 编辑文件页面 -->
       </div>
@@ -365,9 +451,17 @@
           </p>
         </div>
       </div>
-      
     </main>
-    <!--</div>-->
+    <!--倒计时关闭的成功信息弹框-->
+    <div class="Toast_container bottom-center" id="toastContainerSuccess">
+      <div class="Toast_toast Toast_toast--success bottom-center">
+        <img class="Toast_icon" src="img/success.svg"/>
+        <div class="Toast_toast-component-body" id="toast-success-infoSuccess">链接已复制！</div>
+        <button aria-label="close" class="Toast_close-button" id="Toast_close-buttonSuccess"> × </button>
+        <div class="Toast_progress-bar" style="animation-duration: 4000ms;" id="progressBarSuccess"></div>
+      </div>
+    </div>
+    
     <!-- 新建文件夹窗口 -->
     <div id="newFolderModal" class="modal">
       <div class="modal-content">
@@ -427,6 +521,7 @@
         </form>
       </div>
     </div>
+    
     <!-- 文件或文件夹信息窗口 -->
     <div id="infoModal" class="modal">
       <div class="modal-content">
@@ -445,6 +540,7 @@
         </form>
       </div>
     </div>
+    <!-- 多选模式开启的提示条，暂不使用 -->
     <div class="promptDiv" id="promptDiv">
       <p id="promptP">多选模式已开启</p>
       <div onclick='getElById("promptDiv").style.bottom="-4em";multiSelMode=false;'>&times;</div>
@@ -501,7 +597,7 @@
       </div>
     </div>
     
-    <!-- 确认删除窗口 -->
+    <!-- 确认删除文件、文件夹窗口 -->
     <div id="deleteConfirmModal" class="modal">
       <div class="modal-content">
         <div class="modal-head">
@@ -515,6 +611,107 @@
           <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
             <button type="submit" class="primaryBtn">确定</button>
             <button type="button" class="normalBtn" onclick="closeModal('deleteConfirmModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- 确认删除用户窗口 -->
+    <div id="deleteUserConfirmModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">删除确认</div>
+          <span class="close" onclick="closeModal('deleteConfirmModal')">&times;</span>
+        </div>
+        <form id="deleteUserConfirmForm" label-position="top">
+          <div style="margin-top:20px;">
+            <p id="deleteUserConfirmText">用户被删除后将不可恢复。<br>你确定要删除吗？</p>
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <button type="submit" class="primaryBtn">确定</button>
+            <button type="button" class="normalBtn" onclick="closeModal('deleteUserConfirmModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- 新建用户窗口 -->
+    <div id="newUserModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">新建用户</div>
+          <span class="close" onclick="closeModal('newUserModal')">&times;</span>
+        </div>
+        <form id="newUserForm" label-position="top">
+          <div style="margin-top:20px;">
+            <div class="flexFormDiv">
+              <span>用户名:</span>
+              <input type="text" id="newUsername" required/>
+            </div>
+            <div class="flexFormDiv">
+              <span>根目录:</span>
+              <input type="text" id="newUserRootFolder" required/>
+            </div>
+            <div class="flexFormDiv">
+              <span style="width:3em;">&nbsp;</span>
+              <input type="checkbox" id="newUserIsAdmin"/>
+              <label class="form-check-label" for="newUserIsAdmin">
+                  是管理员
+              </label>
+            </div>
+            <div class="flexFormDiv">
+              <span style="width:3em;">&nbsp;</span>
+              <input type="checkbox" id="newUserIsActive"/>
+              <label class="form-check-label" for="newUserIsActive">
+                  激活
+              </label>
+            </div>
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <button type="submit" class="primaryBtn">确定</button>
+            <button type="button" class="normalBtn" onclick="closeModal('newUserModal')">关闭</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- 编辑用户窗口 -->
+    <div id="editUserModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-head">
+          <div class="modal-title">编辑用户</div>
+          <span class="close" onclick="closeModal('editUserModal')">&times;</span>
+        </div>
+        <form id="editUserForm" label-position="top">
+          <div style="margin-top:20px;">
+            <div class="flexFormDiv">
+              <span>用户名:</span>
+              <input type="text" id="editUsername" required/>
+            </div>
+            <div class="flexFormDiv">
+              <span>根目录:</span>
+              <input type="text" id="editUserRootFolder" required/>
+            </div>
+            <div class="flexFormDiv">
+              <span>新密码:</span>
+              <input type="password" id="editUserPassword" />
+            </div>
+            <div class="flexFormDiv">
+              <span style="width:3em;">&nbsp;</span>
+              <input type="checkbox" id="editUserIsAdmin"/>
+              <label class="form-check-label" for="editUserIsAdmin">
+                  是管理员
+              </label>
+            </div>
+            <div class="flexFormDiv">
+              <span style="width:3em;">&nbsp;</span>
+              <input type="checkbox" id="editUserIsActive"/>
+              <label class="form-check-label" for="editUserIsActive">
+                  激活
+              </label>
+            </div>
+          </div>
+          <div style="text-align:right;align-item:right;width:100%;margin:20px auto;border-top:1px solid #ddd;padding-top:20px;">
+            <button type="submit" class="primaryBtn">确定</button>
+            <button type="button" class="normalBtn" onclick="closeModal('editUserModal')">关闭</button>
           </div>
         </form>
       </div>

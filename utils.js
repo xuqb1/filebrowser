@@ -356,6 +356,7 @@ function isFolder(pathToCheck) {
 export function getUniquePath(targetDir, fullSourcePath) {
   let baseName = path.basename(fullSourcePath);
   let ext = '';//path.extname(baseName);
+  let filename = baseName;
   if(filename.indexOf('.')>=0){
     ext = '.'+filename.split('.')[filename.split('.').length-1];
   }

@@ -3,12 +3,112 @@
     {
       "id": "1735914131292",
       "username": "admin",
-      "password": "$2b$10$6ZRH4yTDvoOCLJwtfoetkOcqqEWl0xBI9psv/vuoH/MewB5YKYhVu",
-      "rootFolderPath": "",
+      "password": "$2b$10$GZEBiVu6jLXzZe/DmxPQuuG4/mbVP2hKTnMlqPAO1l9p06yZjr376",
+      "rootFolderPath": ".",
       "isAdmin": 1,
       "totalDiskSpace": 1,
       "lang": "browser",
-      "theme": "0"
+      "theme": "0",
+      "isActive": 0
+    },
+    {
+      "id": "1742202426148",
+      "username": "test",
+      "password": "$2b$10$PmYI/BintJUS2gEpMP0Mi.C3Uueu44COJQKnUqeYMmiyQbwPbnWNi",
+      "rootFolderPath": "test",
+      "isAdmin": 1,
+      "isActive": 1,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204368311",
+      "username": "test1",
+      "password": "$2b$10$VNaPNQBHuX370iFKc2OxReVc8QGXl96xUa/7JduLWGRKJij3uW/Cu",
+      "rootFolderPath": "test1",
+      "isAdmin": 0,
+      "isActive": 0,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204373898",
+      "username": "test2",
+      "password": "$2b$10$x/cOHLxDSyUnftGiF/PIjerV/f.biei1nXW9TOCWbVCNj87YQvTaC",
+      "rootFolderPath": "test2",
+      "isAdmin": 0,
+      "isActive": 0,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204378498",
+      "username": "test3",
+      "password": "$2b$10$VrJuL08sTsAnMb8TZAvfru0vhJtGHSKz.R3aMx3VEAbO33RcKWjiS",
+      "rootFolderPath": "test3",
+      "isAdmin": 0,
+      "isActive": 0,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204383963",
+      "username": "test4",
+      "password": "$2b$10$Fqj8fxC5sOzKPejA/r7ApevLAPCrrL5oWoHa0zXB/8Kb2RePnpH2.",
+      "rootFolderPath": "test4",
+      "isAdmin": 0,
+      "isActive": 0,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204388866",
+      "username": "test5",
+      "password": "$2b$10$J9YI2.Ckc.rmGfjXwRBt6.WWBTMXHe.SS/ofofAFWaB2pfi500OxW",
+      "rootFolderPath": "test5",
+      "isAdmin": 0,
+      "isActive": 0,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204397750",
+      "username": "test6",
+      "password": "$2b$10$F3xJaBbKr42eXA.KQ.txherjElVP73IeNX8aeM7JiXQCfWugHz6HC",
+      "rootFolderPath": "test6",
+      "isAdmin": 0,
+      "isActive": 0,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204403665",
+      "username": "test7",
+      "password": "$2b$10$mLF/.NJGX5xVJQL9VVVH8OTYYUn5qG49A3TVx/8bQcQQrbhDSa886",
+      "rootFolderPath": "test7",
+      "isAdmin": 0,
+      "isActive": 0,
+      "totalDiskSpace": 1,
+      "lang": "en-US",
+      "theme": "1"
+    },
+    {
+      "id": "1742204410208",
+      "username": "test8",
+      "password": "$2b$10$XnNp5LiDmrlh3SSqKwXxGeE.8W0SO5fpqM1mVefCTlXC1aFAxPfOS",
+      "rootFolderPath": "test8-1",
+      "isAdmin": 0,
+      "isActive": 1,
+      "totalDiskSpace": 1,
+      "lang": "browser",
+      "theme": "1"
     }
   ],
   "settings": [
@@ -25,15 +125,20 @@
     {
       "banOutlink": false,
       "banShowUsedDiskSpace": false,
-      "theme": 0,
-      "lang": "browser",
+      "theme": "1",
+      "lang": "en-US",
       "instanceName": "File Browser",
       "systemIcon": "img/test1(1).png",
       "uploadBlockSize": "10MB",
       "uploadFailRetryTimes": 5,
       "defaultTotalDiskSpace": 1,
       "version": "1.0.0",
-      "userRootFolderPath": "D:\\files"
+      "userRootFolderPath": "D:\\files",
+      "allowUserLogup": 1,
+      "txtFileExt": "txt, cfg, ini, bas, js, html, java, yml, xml, properties",
+      "picFileExt": "bmp, jpg, png, gif, svg, cgm",
+      "audFileExt": "wav, mp3",
+      "vidFileExt": "3gp, mp4, avi"
     }
   ]
 }

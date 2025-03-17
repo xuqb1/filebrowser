@@ -948,7 +948,6 @@ main {
   line-height: 1;
 }
 
-
 .nav-tabs .nav-link {
   margin-bottom: calc(-1 * var(--bs-nav-tabs-border-width));
   background: 0 0;
@@ -989,8 +988,8 @@ main {
     padding-top: 1.5em;
 }
 .card .card-title {
-    padding: 1.5em 1em 1em;
-    display: flex;
+  padding: 1.5em 1em 1em;
+  display: flex;
 }
 .card > div {
     padding: 1em;
@@ -1001,7 +1000,182 @@ main {
   font-weight: 500;
   /*margin: 2em 0px 1em;*/
   margin-right: 1em;
+  white-space: nowrap;
+}
+.card .card-content {
+  display: block;
+}
+.card .card-content input:not([type="checkbox"]) {
+  min-width: 12em;
 }
 .card .card-action {
   text-align: right;
+  position: relative;
+  bottom: 0;
+}
+/* 倒计时提示框 */
+@media only screen and (min-width: 600px) {
+  .Toast_container.top-center, .Toast_container.bottom-center {
+    left: 50%;
+    margin-left: -300px;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .Toast_container.bottom-left, .Toast_container.bottom-right, .Toast_container.bottom-center {
+    bottom: 1em;
+    flex-direction: column-reverse;
+  }
+}
+@media only screen and (min-width: 600px) {
+  .Toast_container.top-center .Toast_toast, .Toast_container.bottom-center .Toast_toast {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+.Toast_toast--success {
+  background-color: #4caf50;
+  color: #fff;
+}
+.Toast_toast {
+  display: inline-flex;
+  position: relative;
+  max-height: 800px;
+  min-height: 64px;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+  padding: 22px 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, .1), 0 2px 15px rgba(0, 0, 0, .05);
+  justify-content: space-between;
+  font-family: Lato, Helvetica, Roboto, Arial, sans-serif;
+  max-width: 600px;
+  min-width: 326px;
+  pointer-events: auto;
+  overflow: hidden;
+  transform: translateZ(0);
+  direction: ltr;
+}
+.Toast_icon {
+  margin: auto 18px auto 0;
+  background: transparent;
+  outline: none;
+  border: none;
+  padding: 0;
+  transition: .3s ease;
+  align-items: center;
+  width: 20px;
+  height: 100%;
+  filter: invert(100%);
+}
+.Toast_toast-component-body {
+  flex: 1;
+}
+.Toast_close-button {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 24px;
+  background: transparent;
+  outline: none;
+  border: none;
+  padding: 0 0 0 10px;
+  cursor: pointer;
+  transition: .3s ease;
+  align-items: center;
+  color: #fff;
+  opacity: .3;
+  transition: visibility 0s, opacity .2s linear;
+}
+.Toast_close-button:hover {
+  color: #fff;
+  opacity: 1;
+  transform: scale(1.2);
+}
+.Toast_progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  z-index: 10000;
+  background-color: rgba(255, 255, 255, .7);
+  transform-origin: left;
+  animation: countdown 1 linear forwards;
+  /*animation: scale-x-frames linear 1 forwards;*/
+}
+.Toast_container {
+  display: none;
+  z-index: 9999;
+  position: fixed;
+  padding: 4px;
+  width: 600px;
+  box-sizing: border-box;
+  min-height: 100%;
+  color: #fff;
+  flex-direction: column;
+  pointer-events: none;
+}
+/* 倒计时动画 */
+@keyframes countdown {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
+}
+
+.card .card-content.full {
+  padding-bottom: 0px;
+  overflow: no;
+}
+.card-content table {
+  margin: 0px -1em;
+  width: calc(100% + 2em);
+  /*max-height: calc(100% - 20em);*/
+}
+.pagination {
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.flexFormDiv {
+  display:flex;
+  height:2em;
+  line-height:2em;
+  margin-bottom:1em;
+  gap:1em;
+}
+/* 让表格单元格内容居中对齐 */
+#userTable th,
+#userTable td {
+  text-align: center;
+  vertical-align: middle;
+  border: 0px;
+  padding: 1em;
+}
+
+/* 鼠标悬停效果 */
+#userTable tbody tr:hover {
+  background-color: var(--surfaceSecondary);
+}
+
+/* 选中行的样式 */
+#userTable tbody tr.selected {
+  background-color: var(--textPrimary);/*#d1e7dd;*/
+}
+
+#userTable thead th {
+  position: sticky;
+  top: 0;
+  background-color: var(--surfacePrimary);
+  z-index: 1;
+}
+
+.yscrollTableDiv {
+  height: calc(100% - 26em);
+  width: 100%;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
 }

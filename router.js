@@ -183,6 +183,15 @@ router.post('/login', (req, res) => {
       }
       if(user.isAdmin == 1){
         rsuser.global = db.data.global[0];
+      }else{
+        rsuser.global = {
+          instanceName: db.data.global[0].instanceName, 
+          systemIcon: db.data.global[0].systemIcon, 
+          txtFileExt: db.data.global[0].txtFileExt, 
+          picFileExt: db.data.global[0].picFileExt, 
+          audFileExt: db.data.global[0].audFileExt, 
+          vidFileExt: db.data.global[0].vidFileExt
+        }
       }
       utils.info(username + ' Login successful.');
       res.status(200).json({code:200, msg: 'Login successful.', data: rsuser});
@@ -753,7 +762,7 @@ router.post('/upload', upload.single('fileData'), (req, res) => {
   res.status(200).json({code:200,result:true, msg:'文件上传成功'});
   //res.send('文件上传成功');
 });
-
+// 更新系统名称与图标
 router.post('/updateNameIcon', upload.single('fileData'), async (req, res) => {
   const currentDirectory = path.join(__dirname, 'public', 'img');//req.body.currentDirectory;
   const fileName = req.body.fileName;
@@ -800,7 +809,7 @@ router.post('/updateNameIcon', upload.single('fileData'), async (req, res) => {
     res.status(400).json({code:400,msg:'更新出错，没有需要更新的'});
   }
 });
-
+// 修改密码
 router.post('/updatePwd', async (req, res) => {
   const { username } = req.session.user;
   const users = db.data.users;
@@ -814,7 +823,6 @@ router.post('/updatePwd', async (req, res) => {
     const bytes = CryptoJS.AES.decrypt(encryptedPassword, user.id+user.username);
     const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
     console.log('Decrypted Password:', decryptedPassword);
-
     const hash = bcrypt.hashSync(decryptedPassword, 10);
     console.log('加密后的密码:', hash);
     user.password = hash;
@@ -826,7 +834,263 @@ router.post('/updatePwd', async (req, res) => {
     res.status(500).json({ error: '密码修改失败' });
   }
 });
+// 更新用户全局设置
+router.post('/updateUserViaSettings', async(req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  if(user.isAdmin != 1){
+    return res.status(400).json({ code: 400, msg: '非管理员不能更新全局设置' });
+  }
+  let needUpdate = false;
+  if(utils.isValid(req.body.mainPath)==true){
+    db.data.global[0].userRootFolderPath = req.body.mainPath;
+    needUpdate = true;
+  }
+  if(utils.isValid(req.body.defaultLang)==true){
+    db.data.global[0].lang = req.body.defaultLang;
+    needUpdate = true;
+  }
+  if(utils.isValid(req.body.defaultTheme)==true){
+    db.data.global[0].theme = req.body.defaultTheme;
+    needUpdate = true;
+  }
+  if(utils.isValid(req.body.allowUserLogup)==true){
+    db.data.global[0].allowUserLogup = req.body.allowUserLogup;
+    needUpdate = true;
+  }
+  if(needUpdate == false){
+    return res.status(400).json({ code: 400, msg: '不需要更新用户全局设置' });
+  }
+  await db.write();
+  res.status(200).json({ code: 200, msg: '更新用户全局设置成功' });
+})
+// 更新文件后缀全局设置
+router.post('/updateFileExtSettings', async(req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  if(user.isAdmin != 1){
+    return res.status(400).json({ code: 400, msg: '非管理员不能更新全局设置' });
+  }
+  let needUpdate = false;
+  if(utils.isValid(req.body.txtFileExt)==true){
+    db.data.global[0].txtFileExt = req.body.txtFileExt;
+    needUpdate = true;
+  }
+  if(utils.isValid(req.body.picFileExt)==true){
+    db.data.global[0].picFileExt = req.body.picFileExt;
+    needUpdate = true;
+  }
+  if(utils.isValid(req.body.audFileExt)==true){
+    db.data.global[0].audFileExt = req.body.audFileExt;
+    needUpdate = true;
+  }
+  if(utils.isValid(req.body.vidFileExt)==true){
+    db.data.global[0].vidFileExt = req.body.vidFileExt;
+    needUpdate = true;
+  }
+  if(needUpdate == false){
+    return res.status(400).json({ code: 400, msg: '不需要更新文件后缀全局设置' });
+  }
+  await db.write();
+  res.status(200).json({ code: 200, msg: '更新文件后缀全局设置成功' });
+})
 
+// 获取所有用户
+router.post('/getAllUsers', async(req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  if(user.isAdmin != 1){
+    return res.status(400).json({ code: 400, msg: '非管理员不能获取全部用户' });
+  }
+  let pageNum = req.body.pageNum; //当前第几页
+  let pageSize = req.body.pageSize;//每页显示的记录数
+  if(utils.isValid(pageNum)==false || pageNum < 1){
+    pageNum = 1;
+  }
+  if(utils.isValid(pageSize)==false || pageSize < 10){
+    pageSize = 10;
+  }
+  if(users.length <= pageSize){
+    pageNum = 1;
+  }
+  let list = [];
+  while((pageNum-1)*pageSize>user.length){
+    pageNum --;
+  }
+  for(let i=(pageNum-1)*pageSize;i<pageNum*pageSize;i++){
+    if(i == users.length){
+      break;
+    }
+    list.push(JSON.parse(JSON.stringify(users[i])));
+  }
+  list.forEach(item=>{
+    delete item.password;
+  });
+  res.status(200).json({ code: 200, msg: '获取全部用户成功', data: {list:list, totalSize: users.length, pageNum: pageNum} });
+})
+// 查询用户
+router.post('/queryUsers', async(req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  let queryStr = req.body.queryStr;
+  if(utils.isValid(queryStr)==false){
+    res.status(400).json({code:400, msg:'不允许查询全部用户'});
+    return;
+  }
+  let rsdata = users.filter(item => item.username === queryStr);
+  res.status(200).json({ code: 200, msg: '查询用户成功', data: rsdata });
+})
+// 新建用户
+router.post('/newuser', async(req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  if(user.isAdmin != 1){
+    return res.status(400).json({ code: 400, msg: '非管理员不能新建用户' });
+  }
+  let newUsername = req.body.username;
+  if(utils.isValid(newUsername)==false){
+    return res.status(400).json({ code: 400, msg: '不能新建用户名为空的用户' });
+  }
+  let newUser = users.find(user => user.username == newUsername);
+  if(utils.isValid(newUser)==true){
+    return res.status(400).json({ code: 400, msg: '已经存在该用户' });
+  }
+  try{
+    newUser = {
+      id: Date.now().toString(), 
+      username: newUsername, 
+      password: bcrypt.hashSync('123456', 10), 
+      rootFolderPath: req.body.rootFolderPath, 
+      isAdmin: req.body.isAdmin, 
+      isActive: req.body.isActive, 
+      totalDiskSpace: 1, 
+      lang: db.data.global[0].lang, 
+      theme: db.data.global[0].theme, 
+    };
+    users.push(newUser);
+    await db.write();
+    if(utils.isValid(newUser.rootFolderPath)==true){
+      let fullPath = path.join(db.data.global[0].userRootFolderPath, newUser.rootFolderPath);
+      if(fs.existsSync(fullPath)==false){
+        fs.mkdirSync(fullPath);
+      }
+    }
+    res.status(200).json({ code: 200, msg: '新建用户成功'});
+  } catch (error) {
+    console.error('Decryption error:', error);
+    res.status(500).json({ error: '新建用户失败' });
+  }
+});
+// 根据id获取用户信息
+router.post('/getUserById', async(req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  let userid = req.body.id;
+  let userdetail = users.find(user => user.id == userid);
+  
+  if(utils.isValid(userdetail)==false){
+    return res.status(400).json({ code: 400, msg: '未找到用户' });
+  }
+  res.status(200).json({ code: 200, msg: '查找用户成功', data: userdetail});
+});
+// 更新用户信息
+router.post('/updateUser', async (req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  const users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  if(user.isAdmin != 1){
+    return res.status(400).json({ code: 400, msg: '非管理员不能新建用户' });
+  }
+  let editUser = req.body;
+  const dbUser = users.find(user=>user.id == editUser.id);
+  if(utils.isValid(dbUser)==false){
+    return res.status(400).json({ code: 400, msg: '未找到用户' });
+  }
+  if(utils.isValid(editUser.password)==true){
+    const bytes = CryptoJS.AES.decrypt(editUser.password, editUser.id+editUser.oldUsername);
+    const decryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+    console.log('Decrypted Password:', decryptedPassword);
+    const hash = bcrypt.hashSync(decryptedPassword, 10);
+    dbUser.password = hash;
+  }
+  //检查修改后的用户名是不是与其他用户名重复
+  if(utils.isValid(editUser.username)==true){
+        const checkUser = users.find(user=>user.username == editUser.username && user.id != editUser.id);
+    if(utils.isValid(checkUser)==true){
+      return res.status(400).json({ code: 400, msg: '改后的用户名已被其他用户使用' });
+    }
+    dbUser.username = editUser.username;
+  }
+  if(utils.isValid(editUser.rootFolderPath)==true){
+    dbUser.rootFolderPath = editUser.rootFolderPath;
+    let fullPath = path.join(db.data.global[0].userRootFolderPath, editUser.rootFolderPath);
+    if(fs.existsSync(fullPath)==false){
+      fs.mkdirSync(fullPath);
+    }
+  }
+  dbUser.isAdmin = editUser.isAdmin;
+  dbUser.isActive = editUser.isActive;
+  await db.write();
+  res.status(200).json({ code: 200, msg: '更新用户成功' });
+})
+// 删除用户
+router.post('/deleteUser',  async (req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  const { username } = req.session.user;
+  let users = db.data.users;
+  const user = db.data.users.find(user => user.username === username);
+  if(user.isAdmin != 1){
+    return res.status(400).json({ code: 400, msg: '非管理员不能删除用户' });
+  }
+  let userid = req.body.id;
+  if(utils.isValid(userid)==false){
+    return res.status(400).json({ code: 400, msg: '删除用户失败' });
+  }
+  const userIndex = db.data.users.findIndex(user => user.id === userid);
+  if (userIndex === -1) {
+    return res.status(404).json({ error: '用户未找到' });
+  }
+  users = users.splice(userIndex, 1);
+  await db.write();
+  res.status(200).json({code:200, result: true, msg:'删除用户成功'});
+});
 router.get('/download/:filename', (req, res) => {
   const { username } = req.session.user;
   if (!username) {

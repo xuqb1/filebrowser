@@ -1,3 +1,4 @@
+let toastTimeoutId;
 // 发送post请求，可转到util.js 里
 async function fetchDataPost(url,data){
   const response = await fetch(url, { //'/create-folder'
@@ -252,4 +253,35 @@ function startWith(str, firstStr){
     return false;
   }
   return str.indexOf(firstStr) == 0;
+}
+function showSuccessInfo(info, second){
+  const showToastButton = document.getElementById('toastContainerSuccess');
+  const toastContainer = document.getElementById('toastContainerSuccess');
+  const toastProgressBar = document.getElementById('progressBarSuccess');
+  const toastCloseButton = document.getElementById('Toast_close-buttonSuccess');
+  toastCloseButton.addEventListener('click', () => {
+    toastContainer.style.display = 'none';
+    // 停止进度条动画
+    toastProgressBar.style.animation = 'none';
+    // 清除倒计时定时器
+    clearTimeout(toastTimeoutId);
+  });
+  let countMils = second;
+  if(second == undefined || second == '' || second <=0){
+    second = 4;
+  }
+  countMils = second * 1000;
+  document.getElementById('toast-success-infoSuccess').innerHTML = info;
+  // 显示提示框
+  toastContainer.style.display = 'flex';
+  // 重置进度条动画
+  toastProgressBar.style.animation = 'none';
+  toastProgressBar.offsetHeight; // 触发重绘
+  toastProgressBar.style.animationDuration = countMils + 'ms';
+  toastProgressBar.style.animation = 'countdown '+second+'s linear forwards';
+  clearTimeout(toastTimeoutId);
+  // 倒计时结束后隐藏提示框
+  toastTimeoutId = setTimeout(() => {
+    toastContainer.style.display = 'none';
+  }, countMils);
 }

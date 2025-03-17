@@ -162,6 +162,7 @@ async function getFiles(){
   fileList = res.data.fileList;
   currPathInfo = res.data.currPathInfo;
   showFileList();
+  //showSuccessInfo('获取文件夹、文件列表成功', 1);
 }
 // 左侧功能菜单列表中的除了 新建文件夹、新建文件、退出之外的菜单项，单击切换时，
 // 要对其他菜单项进行释放选中刷新
@@ -600,6 +601,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const deleteIcon = getElById("deleteIcon");   //删除图标
   const deleteIcon1 = getElById("deleteIcon1");
   
+  // 设置页面，用户管理
+  const newUserBtn = getElById('newUserBtn');
+  
   // 弹出窗口
   const folderModal = getElById('newFolderModal');      //新建文件夹窗口
   const fileModal = getElById('newFileModal');          //新建文件窗口
@@ -619,9 +623,6 @@ document.addEventListener('DOMContentLoaded', function () {
     showDomObj('dirNav', 'flex');
     showDomObj('listing', '');
     showDomObj('main-content', 'flex');
-    //hideDomObj('editfile-page');
-    //hideDomObj('previewimage-page');
-    //hideDomObj('settings-page');
     selMenuId = 'my-files';
     getFiles();
   });
@@ -763,6 +764,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const file = fileInput.files[0];
     if (isValid(file)==false){
       alert('请选择要上传的文件');
+      return;
     }
     const formData = new FormData();
     // 模拟当前目录信息，这里只是一个示例字符串
@@ -791,7 +793,8 @@ document.addEventListener('DOMContentLoaded', function () {
           myFiles.click();
           await getUsedSpace();
           replaceVar();
-          alert('上传成功');
+          //alert('上传成功');
+          showSuccessInfo('上传成功', 2);
         }else{
           alert('上传失败');
         }
@@ -843,7 +846,8 @@ document.addEventListener('DOMContentLoaded', function () {
       hideDomObj(renameFileModal);
       // 刷新文件列表
       myFiles.click();
-      alert('重命名成功.');
+      //alert('重命名成功.');
+      showSuccessInfo('重命名成功', 2);
     }else{
       alert('重命名文件失败.');
     }
@@ -906,9 +910,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if(isValid(selPath) == true){
       fullPath += '/' + selPath;
     }
-    //console.log('L714 fullPath='+fullPath);
-    //console.log('L715 selectedFiles=', selectedFiles);
-    //console.log('L716 userInfo=', userInfo);
     let data = {
       selectedFiles: selectedFiles, 
       destDir: fullPath
@@ -937,10 +938,12 @@ document.addEventListener('DOMContentLoaded', function () {
         myFiles.click();
         await getUsedSpace();
         replaceVar();
-        alert('复制成功.');
+        //alert('复制成功.');
+        showSuccessInfo('复制成功', 2);
       }else{
         myFiles.click();
-        alert('移动成功.');
+        //alert('移动成功.');
+        showSuccessInfo('移动成功', 2);
       }
     }else{
       if(copyOrMove == 'copy'){
@@ -970,7 +973,32 @@ document.addEventListener('DOMContentLoaded', function () {
       myFiles.click();
       await getUsedSpace();
       replaceVar();
-      alert('删除成功.');
+      //alert('删除成功.');
+      showSuccessInfo('删除成功', 2);
+    }else{
+      alert('删除失败');
+    }
+  });
+  // 删除用户确认窗口，提交时，执行删除动作
+  deleteUserConfirmModal.querySelector('form').addEventListener('submit',async  function (event) {
+    event.preventDefault();
+    let data = {
+      id: delUserid
+    };
+    let res = await fetchDataPost('deleteUser', data);
+    if(checkResponse(res, '')==false){
+      if(res && res.msg == 'need re-login'){
+        afterlogout();
+        return;
+      }
+      //alert('删除失败');
+      return;
+    }
+    if(res.result == true){
+      hideDomObj(deleteUserConfirmModal);
+      await getAndShowUsers();
+      showSuccessInfo('删除成功', 2);
+      delUserid = ''
     }else{
       alert('删除失败');
     }
@@ -1046,6 +1074,66 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.reload();
     //releaseSelStatus('my-files');
   });
+  
+  // 设置页面，用户管理，新建按钮单击响应，弹出新建用户窗口
+  newUserBtn.addEventListener('click', function(){
+    console.log('L1056...');
+    showDomObj('newUserModal', 'block');
+  });
+  
+  // 新建用户窗口，单击确定，表单提交
+  getElById('newUserForm').addEventListener('submit', async function(){
+    event.preventDefault();
+    let data = {
+      username: getElById('newUsername').value, 
+      rootFolderPath: newUserRootFolder.value, 
+      isAdmin: newUserIsAdmin.checked? 1:0, 
+      isActive: newUserIsActive.checked? 1:0
+    };
+    let res = await fetchDataPost('newuser', data);
+    if(checkResponse(res, '')==false){
+      if(res && res.msg == 'need re-login'){
+        afterlogout();
+        return;
+      }
+      //alert('新建用户失败');
+      return;
+    }
+    if(res.result == true){
+      hideDomObj('newUserModal');
+      await getAndShowUsers();
+      showSuccessInfo('新建用户成功', 2);
+    }else{
+      alert('新建用户失败.');
+    }
+  });
+  // 编辑用户窗口，单击确定，表单提交
+  getElById('editUserForm').addEventListener('submit', async function(){
+    event.preventDefault();
+    let oldUsername = editingUser.username;
+    editingUser.oldUsername = oldUsername;
+    editingUser.username = getElById('editUsername').value;
+    editingUser.rootFolderPath = getElById('editUserRootFolder').value;
+    editingUser.password = getElById('editUserPassword').value;
+    editingUser.isAdmin = editUserIsAdmin.checked? 1:0;
+    editingUser.isActive = editUserIsActive.checked? 1:0;
+    if(isValid(editingUser.password)==true){
+      editingUser.password = CryptoJS.AES.encrypt(editingUser.password, editingUser.id+oldUsername).toString();
+    }
+    let res = await fetchDataPost('updateUser', editingUser);
+    if(checkResponse(res, '更新用户失败')==false){
+      console.error('L1100 res=', res);
+      return;
+    }
+    if(res.result == true){
+      hideDomObj('editUserModal');
+      await getAndShowUsers();
+      showSuccessInfo('更新用户成功', 2);
+      editingUser = {};
+    }else{
+      alert('更新用户失败.');
+    }
+  });
   // 点击页面其他地方隐藏用户下拉菜单或操作下拉菜单
   document.addEventListener('click', function (event) {
     let obj = getElById('dropdownUserMenu');
@@ -1111,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', function () {
         obj.remove();
       }
     } else {
-      console.log('L1114 userInfo = ', userInfo);
+      console.log('L1115 userInfo = ', userInfo);
       getElById('userRootFolderInput').value = userInfo.global.userRootFolderPath;
       getElById('defaultLang').value = userInfo.global.lang;
       getElById('defaultTheme').value = userInfo.global.theme;
@@ -1218,19 +1306,31 @@ document.addEventListener('DOMContentLoaded', function () {
     //console.log('L714 selectedFiles=', selectedFiles);
   });
   // 设置页面，标签单击响应，针对单击的标签做相应的初始化
-  getElById('settingsTab').addEventListener('shown.bs.tab', function (event) {
+  getElById('settingsTab').addEventListener('shown.bs.tab', async function (event) {
     const target = event.target.getAttribute('data-bs-target');
     const tabPane = document.querySelector(target);
     //console.log('L1186 target=', target);
-    if (target === '#personal-settings') {
+    if (target === '#personal-settings') {  //个人设置
       // 设置表单值
       getElById('selectLanguage').value = userInfo.lang;
       getElById('selectTheme').value = userInfo.theme;
       getElById('newPwdInput').value = '';
       getElById('confirmPwdInput').value = '';
+    } else if(target == '#sharing-management'){ //共享管理
+      
+    } else if(target == '#user-management'){  //用户管理
+      getAndShowUsers();
+    } else {
+      txtFileExtInput.value = userInfo.global.txtFileExt;
+      picFileExtInput.value = userInfo.global.picFileExt;
+      audFileExtInput.value = userInfo.global.audFileExt;
+      vidFileExtInput.value = userInfo.global.vidFileExt;
     }
   });
-  // 个人设置表单中可同时修改语言和主题样式
+  itemsPerPageSelectUserTable.addEventListener('change', function(event){
+    getAndShowUsers();
+  });
+  // 设置，个人设置表单中可同时修改语言和主题样式
   getElById('profileForm').addEventListener('submit', async function(event){
     let lang = getElById('selectLanguage').value;
     let theme = getElById('selectTheme').value;
@@ -1247,6 +1347,7 @@ document.addEventListener('DOMContentLoaded', function () {
       window.location.reload();
     }
   });
+  // 设置，个人设置，修改密码后提交
   getElById('changePwdForm').addEventListener('submit', async function(event){
     event.preventDefault();
     let newpwd = getElById('newPwdInput').value;
@@ -1266,9 +1367,10 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     alert('密码修改成功，请重新登录');
+    //showSuccessInfo('密码修改成功，请重新登录', 2);
     logout.click();
   });
-  
+  // 设置，全局设置，系统相关，选择系统图标后预览显示
   getElById('sysIconInput').addEventListener('change', function(event){
     const file = this.files[0];
     let imagePreview = getElById('sysIconPreview');
@@ -1284,7 +1386,7 @@ document.addEventListener('DOMContentLoaded', function () {
       imagePreview.style.display = 'none';
     }
   });
-  
+  // 设置，全局设置，系统相关表单，提交，上传要更改的系统图标或系统名称
   getElById('globalSysViaForm').addEventListener('submit', async function(event){
     event.preventDefault();
     const sysNameInput = getElById('sysNameInput');
@@ -1319,7 +1421,8 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         if(res.result == true){
-          alert('更新成功');
+          //alert('更新成功');
+          showSuccessInfo('更新成功', 2);
           if(isValid(sysNameInput.value)==true){
             userInfo.global.instanceName = sysNameInput.value;
           }
@@ -1341,6 +1444,48 @@ document.addEventListener('DOMContentLoaded', function () {
         alert('更新失败');
       });
       hideOverlay();
+  });
+  // 设置，全局设置，用户相关表单，提交，更新用户主目录路径，默认语言和默认主题
+  getElById('globalUserViaForm').addEventListener('submit', async function(event){
+    event.preventDefault();
+    let mainPath = getElById('userRootFolderInput').value;
+    let defaultLang = getElById('defaultLang').value;
+    let defaultTheme = getElById('defaultTheme').value;
+    let data = {
+      mainPath: mainPath, 
+      defaultLang: defaultLang, 
+      defaultTheme: defaultTheme, 
+      allowUserLogup: getElById('allowUserLogupInput').checked? 1:0
+    }
+    let res = await fetchDataPost('updateUserViaSettings', data);
+    if(checkResponse(res, '更新用户相关设置失败')==false){
+      return;
+    }
+    userInfo.global.userRootFolderPath = mainPath;
+    userInfo.global.lang = defaultLang;
+    userInfo.global.theme = defaultTheme;
+    sessionStorage.setItem('user', JSON.stringify(userInfo));
+    showSuccessInfo('更新成功', 2);
+  });
+  // 设置，全局设置，文件后缀表单，提交，更新文本、图片、音视频文件后缀
+  getElById('globalFileExtForm').addEventListener('submit', async function(event){
+    event.preventDefault();
+    let data = {
+      txtFileExt: txtFileExtInput.value, 
+      picFileExt: picFileExtInput.value, 
+      audFileExt: audFileExtInput.value, 
+      vidFileExt: vidFileExtInput.value
+    }
+    let res = await fetchDataPost('updateFileExtSettings', data);
+    if(checkResponse(res, '更新文件后缀设置失败')==false){
+      return;
+    }
+    userInfo.global.txtFileExt = data.txtFileExt;
+    userInfo.global.picFileExt = data.picFileExt;
+    userInfo.global.audFileExt = data.audFileExt;
+    userInfo.global.vidFileExt = data.vidFileExt;
+    sessionStorage.setItem('user', JSON.stringify(userInfo));
+    showSuccessInfo('更新成功', 2);
   });
   
   settingsModal.querySelector('form').addEventListener('submit', function (event) {
@@ -1400,6 +1545,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (event.target == infoModal) {
       hideDomObj(infoModal);
+    }
+    if (event.target == getElById('newUserModal')) {
+      hideDomObj('newUserModal');
     }
   };
   //console.log('L1230 DOMContentLoaded ..');
@@ -1893,7 +2041,7 @@ async function getUsedSpace(){
         diskSpace.usedDiskSpacePercent = 0;
       }else{
         //diskSpace.usedDiskSpace = diskSpace.usedDiskSpace/1024/1024/1024;
-        usedDiskSpacePercent = Math.trunc(diskSpace.usedDiskSpace1024/1024/1024/diskSpace.totalDiskSpace*100);//.fixed(0);
+        usedDiskSpacePercent = Math.trunc(diskSpace.usedDiskSpace/1024/1024/1024/diskSpace.totalDiskSpace*100);
       }
       diskSpace.usedDiskSpace = (diskSpace.usedDiskSpace).toFixed(0);
       if(diskSpace.usedDiskSpace == 0){
@@ -1941,6 +2089,7 @@ function replaceVar(){
       usedDiskSpacePercent = 5;
     }
     elObj.style.width = usedDiskSpacePercent + '%';
+    elObj.parentNode.title = usedDiskSpacePercent + '%';
     //console.log('L888 elObj.style.width='+elObj.style.width);
   }
   //替换版本
@@ -1981,3 +2130,107 @@ window.addEventListener('beforeunload', function(event) {
   // event.preventDefault();
   // event.returnValue = '';
 });*/
+async function getAndShowUsers(pageNum){
+  let pageSize = getElById('itemsPerPageSelectUserTable').value;
+  if(isValid(pageSize)==false || pageSize<10){
+    pageSize = 10;
+  }
+  if(isValid(pageNum)==false || pageNum<=0){
+    pageNum = 1;
+  }
+  console.log('L2064 pageSize=', pageSize);
+  let res = await fetchDataPost('getAllUsers', {pageNum: pageNum, pageSize: pageSize})
+  if(checkResponse(res, '获取全部用户失败')==false){
+    return;
+  }
+  let userData = res.data.list;
+  let totalSize = res.data.totalSize;
+  pageNum = res.data.pageNum;
+  let tableBody = getElById('userTableBody');
+  tableBody.innerHTML = '';
+  userData.forEach(user => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>
+        <input type="checkbox" class="row-checkbox" name="checkboxUserTable" />
+      </td>
+      <td>${user.username}</td>
+      <td>${user.isAdmin ? '是' : '否'}</td>
+      <td>${user.rootFolderPath}</td>
+      <td>${user.username=='admin' ? '是' : user.isActive==undefined?'否':user.isActive}</td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="showUserEditModal('${user.id}')">编辑</button>
+        <button class="btn btn-sm btn-danger" onclick="showUserDelConfirmModal('${user.id}', '${user.username}')" ${user.username=='admin'?'disabled':''}>删除</button>
+      </td>
+    `;
+    row.id = 'userTableRow-' + user.id;
+    // 为每行添加点击事件
+    row.addEventListener('click', function () {
+        this.classList.toggle('selected');
+        const checkbox = this.querySelector('.row-checkbox');
+        checkbox.checked = !checkbox.checked;
+    });
+    // 为复选框添加点击事件，阻止事件冒泡
+    const checkbox = row.querySelector('.row-checkbox');
+    checkbox.addEventListener('click', function (event) {
+      event.stopPropagation();
+      row.classList.toggle('selected', this.checked);
+    });
+    tableBody.appendChild(row);
+  });
+  getElById('totalSizeUserTable').innerHTML = '共' + totalSize + '个';
+  const totalPages = Math.ceil(totalSize / pageSize);
+  createPagination(totalPages, pageNum);
+}
+function createPagination(totalPages, currentPage) {
+  let pagination = getElById('paginationUserTable');
+  pagination.innerHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    const li = document.createElement('li');
+    li.classList.add('page-item');
+    if (i === currentPage) {
+        li.classList.add('active');
+    }
+    const a = document.createElement('a');
+    a.classList.add('page-link');
+    a.href = '#';
+    a.textContent = i;
+    a.dataset.page = i;
+    a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = parseInt(e.target.dataset.page);
+        currentPage = page;
+        //showData(page, itemsPerPage);
+        getAndShowUsers(page);
+    });
+    li.appendChild(a);
+    pagination.appendChild(li);
+  }
+}
+let editingUser = {};
+async function showUserEditModal(userid){
+  //let row = getElById('userTableRow-' + userid);
+  editingUser = {};
+  let res = await fetchDataPost('getUserById', {id:userid});
+  if(checkResponse(res, '')==false){
+    return;
+  }
+  if(res.result != true){
+    alert('获取用户信息失败');
+    return;
+  }
+  editingUser = res.data;
+  editUsername.value = editingUser.username;
+  editUserRootFolder.value = editingUser.rootFolderPath;
+  editUserPassword.value = '';
+  editUserIsAdmin.checked = editingUser.isAdmin==1?true:false;
+  editUserIsActive.checked = editingUser.isActive==1?true:false;
+  showDomObj(editUserModal, 'block');
+}
+let delUserid = '';
+function showUserDelConfirmModal(userid, username){
+  delUserid = userid;
+  deleteUserConfirmText.innerHTML = '用户删除后，将不可恢复。<br>你确定要删除用户 '
+      + username + ' 吗？';
+  showDomObj(deleteUserConfirmModal, 'block');
+}
