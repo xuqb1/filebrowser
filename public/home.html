@@ -11,9 +11,12 @@
     <!-- 引入明暗模式样式 -->
     <link rel="stylesheet" href="css/home_light.css" media="(prefers-color-scheme: light)">
     <link rel="stylesheet" href="css/home_dark.css" media="(prefers-color-scheme: dark)">
+    <link href="./video-js/7.18.1/video-js.css" rel="stylesheet" />
+    
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/crypto.js"></script>
     <script src="./bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="./video-js/7.18.1/video.min.js"></script>
   </head>
   <body>
     <div class="overlay" style="display: none;"></div>
@@ -451,6 +454,81 @@
           </p>
         </div>
       </div>
+      <div id="editor-container" style="display:none;">
+        <header>
+          <div style="display:flex;justify-content: space-between;width:100%;">
+            <button aria-label="关闭" title="关闭" class="action" onclick="hideDomObj('editor-container');getFiles()" style="margin-right:auto;">
+              <span style="font-size:18px;">&times;</span><!---->
+            </button>
+            <button aria-label="保存" title="保存" class="action" id="save-button">
+              <i class="fa fa-save"></i>
+            </button>
+          </div>
+        </header>
+        <div class="breadcrumbs" style="gap:1em;">
+          <span to="/files" aria-label="主页" title="主页">
+            <i class="fa fa-home"></i>
+          </span>
+          <span>
+            <span class="chevron">
+              >
+            </span>
+            <span id="editFilePathSpan">
+              aaa.txt
+            </span>
+          </span>
+        </div>
+        <div id="preview-container" class="md_preview" style="display: none;">
+        </div>
+        <div id="editor" class=" ace_editor ace-chrome">
+        </div>
+      </div>
+      <div id="previewer" style="display:none;"><!---->
+        <header>
+          <button aria-label="关闭" title="关闭" class="action" onclick="hideDomObj('previewer')">
+            <span style="font-size:2em;">&times;</span>
+          </button>
+          <title id="previewerFilename">mmexport1733369678843.jpg</title>
+          <!--<button class="action">
+            <i class="material-icons">hd</i>
+          </button>-->
+          <div id="dropdown" class="">
+            <!--<button aria-label="重命名" title="重命名" class="action" id="rename-button">
+              <i class="fa fa-rename"></i>
+            </button>-->
+            <div class="circleDiv1" title="重命名" id="rename-button"><i class="fa fa-pen"></i></div>
+            <!--<button aria-label="删除" title="删除" class="action" id="delete-button">
+              <i class="fa fa-delete"></i>
+            </button>-->
+            <div class="circleDiv1" title="删除" id="rename-button"><i class="fa fa-trash"></i></div>
+            <!--<button aria-label="下载" title="下载" class="action">
+              <i class="fa fa-download"></i>
+            </button>-->
+            <div class="circleDiv1" title="下载" id="download-button"><i class="fa fa-download"></i></div>
+            <!--<button aria-label="信息" title="信息" class="action">
+              <i class="fa fa-info"></i>
+            </button>-->
+            <div class="circleDiv1" title="信息" id="info-button"><i class="fa fa-info"></i></div>
+          </div>
+          <!--<button aria-label="更多" title="更多" class="action" id="more">
+            <i class="material-icons">more_vert</i><span>更多</span>
+          </button>-->
+          <div class="overlay" style="display: none;"></div>
+        </header>
+        <div class="preview">
+          <div class="image-ex-container" style="height: 100%;">
+            <img class="image-ex-img image-ex-img-ready" src="" id="previewerImg" style="top: 0px;">
+            <audio id="previewerAudio" src="" controls="" autoplay=""></audio>
+            <video data-v-9193ecce="" class="vjs-tech video-js" controls preload="auto" width="640" height="264" id="previewerVideo" tabindex="-1" role="application" src=""><source data-v-9193ecce=""><p data-v-9193ecce="" class="vjs-no-js"> Sorry, your browser doesn't support embedded videos, but don't worry, you can <a data-v-9193ecce="" href="" class="vjs-hidden" hidden="hidden">download it</a> and watch it with your favorite video player! </p></video>
+          </div>
+        </div>
+        <!--<button class="hidden" aria-label="上一个" title="上一个">
+          <i class="material-icons">chevron_left</i>
+        </button>
+        <button class="hidden" aria-label="下一个" title="下一个">
+          <i class="material-icons">chevron_right</i>
+        </button>-->
+      </div>
     </main>
     <!--倒计时关闭的成功信息弹框-->
     <div class="Toast_container bottom-center" id="toastContainerSuccess">
@@ -741,6 +819,8 @@
     </div>
     
     <script type="text/javascript" src="js/main.js"></script>
+    <!--<script type="text/javascript" src="ace/1.11.2/ace.min.js"></script>-->
+    <script type="text/javascript" src="ace/1.11.2/src-noconflict/ace.js" charset="utf-8"></script>
     <script>
       
     </script>

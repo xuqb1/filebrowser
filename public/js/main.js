@@ -234,7 +234,9 @@ function clearAndAddRows(){
   }
   if(fileList.length>0){
     for(let i=0;i<fileList.length;i++){
-      let newRow = '<div class="item" ondblclick="openFile(\''+(currPath==''?fileList[i].name:currPath+'/'+fileList[i].name)+'\')"><div>' + getFileIconHtml(fileList[i],16) 
+      let fileStr = JSON.stringify(fileList[i]);
+      fileStr = fileStr.replaceAll('\"', '\\"');
+      let newRow = '<div class="item" ondblclick="openFile(\''+fileList[i].name+'\')"><div>' + getFileIconHtml(fileList[i],16) 
         + '</div><div><p class="name">'+ fileList[i].name
         + '</p><p class="size">'+formatFileSize(fileList[i].size)+'</p><p class="modified">' 
         + formatDate(fileList[i].modified) + '</p><p class="shared">' + (fileList[i].shared==true?'Y':'N') + '</p></div></div>';
@@ -242,6 +244,112 @@ function clearAndAddRows(){
     }
   }
   showDomObj('fileListTable', '');
+}
+let aceeditor;
+async function openFile(filename){
+  if(isValid(filename)==false){
+    return;
+  }
+  let file = fileList.find(x=>x.name == filename);
+  //console.log('L250 file=', file);
+  if(isValid(file)==false){
+    console.log('未找到文件'+filename);
+    return;
+  }
+  if(isTextFile(file.name)==true){
+    if(file.size>10*1024*1024){
+      alert('文件大于10M了，请下载后再编辑');
+      return;
+    }
+    let res = await fetchDataPost('getFileContent', {path: file.path});
+    if(checkResponse(res, '')==false){
+      return;
+    }
+    if(res.result != true){
+      alert('获取文件内容出错');
+      return;
+    }
+    editingFile = file;
+    editingFile.content = base64Decode(res.data);//atob(res.data);
+    //console.log('L273 editingFile.content=', editingFile.content);
+    showDomObj('editor-container', '');
+    //getElById('file-editor').innerHTML = editingFile.content;
+    aceeditor = ace.edit("editor");
+    //console.log('L278 aceeditor=', aceeditor);
+    // 设置编辑器的主题
+    //editor.setTheme("ace/theme/monokai");
+    aceeditor.setTheme("ace/theme/github");
+    // 设置编辑器的语言模式
+    aceeditor.session.setMode("ace/mode/text");
+    aceeditor.setValue(editingFile.content);
+    //console.log('L281 isDarkMode=', isDarkMode);
+    if(isDarkMode == true){
+      aceeditor.setTheme("ace/theme/monokai");//tomorrow_night");
+      //editor.setOption("cursorColor", "white");
+    }
+    let path = currPath + '/' + editingFile.name;
+    if(currPath == '' || currPath == ''){
+      path = editingFile.name;
+    }
+    editFilePathSpan.innerHTML = path.replaceAll('/', '>');
+  }
+  if(isPicFile(file.name)==true){
+    getElById('previewer', '');
+    getElById('previewerFilename').innerHTML = file.name;
+    let res = await fetchDataPost('getFileContent', {path: file.path});
+    if(checkResponse(res, '')==false){
+      return;
+    }
+    if(res.result != true){
+      alert('获取文件内容出错');
+      return;
+    }
+    getElById('previewerImg').src = 'data:image/'
+        +file.name.split('.')[file.name.split('.').length-1]+';base64,'+res.data;
+    showDomObj('previewer','');
+    hideDomObj('previewerAudio');
+    hideDomObj('previewerVideo');
+    showDomObj('previewerImg','');
+  }
+  if(isAudFile(file.name)==true){
+    console.log('L314 file.name=', file.name);
+    getElById('previewer', '');
+    getElById('previewerFilename').innerHTML = file.name;
+    let res = await fetchDataPost('getFileContent', {path: file.path});
+    if(checkResponse(res, '')==false){
+      return;
+    }
+    if(res.result != true){
+      alert('获取文件内容出错');
+      return;
+    }
+    getElById('previewerAudio').src = 'data:audio/mpeg;base64,'+res.data;
+    showDomObj('previewer','');
+    hideDomObj('previewerImg');
+    hideDomObj('previewerVideo');
+    showDomObj('previewerAudio','');
+  }
+  if(isVidFile(file.name)==true){
+    const videoElement = getElById('previewerVideo');
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'video', true);
+    xhr.responseType = 'blob';
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status === 200 || xhr.status === 206) {
+            const blob = new Blob([xhr.response], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            videoElement.src = url;
+        }
+    };
+    const data = JSON.stringify({ path: file.path });
+    xhr.send(data);
+    //getElById('previewerVideo').src = 'data:audio/mpeg;base64,'+res.data;
+    showDomObj('previewer','');
+    hideDomObj('previewerImg');
+    hideDomObj('previewerAudio');
+    showDomObj('previewerVideo','');
+  }
 }
 // 根据文件列表显示方式显示相应的文件列表
 function showFileList(){
@@ -292,7 +400,7 @@ function showFileList(){
       for(let i=0;i<fileList.length;i++){
         filelistHtml += '<div class="smallIconDiv" id="file_'+fileList[i].name
           +'" onclick="toggleSelect(\'file_'+fileList[i].name+'\')" '
-          +'ondblclick="openFile(\''+(currPath==''?fileList[i].name:currPath+'/'+fileList[i].name)+'\')">';
+          +'ondblclick="openFile(\''+fileList[i].name+'\')">';
         filelistHtml += '<div class="smallIconDivI">'+getFileIconHtml(fileList[i],64)+'</div>';
         filelistHtml += '<div class="smallIconText">'
           +'<div style="text-overflow:ellipsis;overflow:hidden;font-size:16px;white-space: nowrap;" title="'
@@ -325,7 +433,7 @@ function showFileList(){
       for(let i=0;i<fileList.length;i++){
         filelistHtml += '<div class="largeIconDiv" id="file_'+fileList[i].name
           +'" onclick="toggleSelect(\'file_'+fileList[i].name+'\')" '
-          +'ondblclick="openFile(\''+(currPath==''?fileList[i].name:currPath+'/'+fileList[i].name)+'\')">';
+          +'ondblclick="openFile(\''+fileList[i].name+'\')">';
         filelistHtml += '<div class="largeIconDivI">'+getFileIconHtml(fileList[i],128)+'</div>';
         filelistHtml += '<div id="largeIconDivText" title="'
           +(getByteLength(fileList[i].name)>40?fileList[i].name:'')+'">' + fileList[i].name +'</div>';
@@ -1134,6 +1242,25 @@ document.addEventListener('DOMContentLoaded', function () {
       alert('更新用户失败.');
     }
   });
+
+  // 编辑文本文件后，点保存
+  getElById('save-button').addEventListener('click', async function(){
+    //editingFile.content = getElById('editor').innerHTML;
+    let data = JSON.parse(JSON.stringify(editingFile));
+    data.content = stringToBase64(aceeditor.getValue());
+    data.size = aceeditor.getValue().length;
+    let res = await fetchDataPost('/saveFile', data);
+    if(checkResponse(res, '')==false){
+      return;
+    }
+    if(res.result == true){
+      showSuccessInfo('保存成功', 2);
+      data.content = aceeditor.getValue();//getElById('editor').innerHTML;
+      editingFile = data;
+    }else{
+      alert('保存失败');
+    }
+  });
   // 点击页面其他地方隐藏用户下拉菜单或操作下拉菜单
   document.addEventListener('click', function (event) {
     let obj = getElById('dropdownUserMenu');
@@ -1199,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', function () {
         obj.remove();
       }
     } else {
-      console.log('L1115 userInfo = ', userInfo);
+      //console.log('L1115 userInfo = ', userInfo);
       getElById('userRootFolderInput').value = userInfo.global.userRootFolderPath;
       getElById('defaultLang').value = userInfo.global.lang;
       getElById('defaultTheme').value = userInfo.global.theme;

@@ -177,25 +177,109 @@ function isString(str){
 }
 // 判断是否是文本文件
 function isTextFile(filename){
-  if(filename.length<4){
+  if(filename.length<3){
     return false;
   }
-  let laststr = filename.substring(filename.length-4);
-  if(laststr == '.txt' || laststr == '.ini' || laststr.substring(1) == '.js' || laststr == '.cfg' || laststr == '.xml' || laststr == '.yml'){
+  if(filename.indexOf('.')<0){
+    return false;
+  }
+  let laststr = filename.split('.')[filename.split('.').length-1];
+  laststr = laststr.toLowerCase();
+  if(laststr == 'txt' || laststr == 'ini' || laststr.substring(1) == 'js' || laststr == 'cfg' || laststr == 'xml' || laststr == 'yml'){
     return true;
+  }
+  if(isValid(userInfo.global.txtFileExt)==true){
+    let arr = userInfo.global.txtFileExt.split(',');
+    arr = arr.map((str) => str.trim());
+    let str = arr.find(x=>x==laststr);
+    return isValid(str);
   }
   return false;
 }
 // 判断是否是图片文件
 function isPicFile(filename){
-  if(filename.length<4){
+  if(filename.length<3){
     return false;
   }
-  let laststr = filename.substring(filename.length-4);
-  if(laststr == '.bmp' || laststr == '.jpg' || laststr.substring(1) == '.svg' || laststr == '.png' || laststr == '.gif'){
+  if(filename.indexOf('.')<0){
+    return false;
+  }
+  let laststr = filename.split('.')[filename.split('.').length-1];
+  laststr = laststr.toLowerCase();
+  if(laststr == 'bmp' || laststr == 'jpg' || laststr.substring(1) == 'svg' || laststr == 'png' || laststr == 'gif'){
     return true;
   }
+  if(isValid(userInfo.global.picFileExt)==true){
+    let arr = userInfo.global.picFileExt.split(',');
+    arr = arr.map((str) => str.trim());
+    let str = arr.find(x=>x==laststr);
+    return isValid(str);
+  }
   return false;
+}
+// 判断是否是音频文件
+function isAudFile(filename){
+  if(filename.length<3){
+    return false;
+  }
+  if(filename.indexOf('.')<0){
+    return false;
+  }
+  let laststr = filename.split('.')[filename.split('.').length-1];
+  laststr = laststr.toLowerCase();
+  if(laststr == 'wav' || laststr == 'mp3'){
+    return true;
+  }
+  if(isValid(userInfo.global.audFileExt)==true){
+    let arr = userInfo.global.audFileExt.split(',');
+    arr = arr.map((str) => str.trim());
+    let str = arr.find(x=>x==laststr);
+    return isValid(str);
+  }
+  return false;
+}
+// 判断是否是视频文件
+function isVidFile(filename){
+  if(filename.length<3){
+    return false;
+  }
+  if(filename.indexOf('.')<0){
+    return false;
+  }
+  let laststr = filename.split('.')[filename.split('.').length-1];
+  if(laststr == '3gp' || laststr == 'mp4' || laststr == 'avi'){
+    return true;
+  }
+  if(isValid(userInfo.global.vidFileExt)==true){
+    let arr = userInfo.global.vidFileExt.split(',');
+    arr = arr.map((str) => str.trim());
+    let str = arr.find(x=>x==laststr);
+    return isValid(str);
+  }
+  return false;
+}
+// base64加密
+function stringToBase64(str) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(str);
+  const uint8Array = new Uint8Array(data);
+  let binary = '';
+  const len = uint8Array.byteLength;
+  for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+  }
+  return btoa(binary);
+}
+// base64解码
+function base64Decode(base64String) {
+  const binaryString = window.atob(base64String);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  const decoder = new TextDecoder('utf-8');
+  return decoder.decode(bytes);
 }
 // 显示dom对象
 function showDomObj(objid, displayValue){

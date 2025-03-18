@@ -8,7 +8,7 @@
       "isAdmin": 1,
       "totalDiskSpace": 1,
       "lang": "browser",
-      "theme": "0",
+      "theme": "2",
       "isActive": 0
     },
     {
@@ -135,10 +135,10 @@
       "version": "1.0.0",
       "userRootFolderPath": "D:\\files",
       "allowUserLogup": 1,
-      "txtFileExt": "txt, cfg, ini, bas, js, html, java, yml, xml, properties",
+      "txtFileExt": "txt, cfg, ini, bas, js, html, java, yml, xml, properties, gitconfig",
       "picFileExt": "bmp, jpg, png, gif, svg, cgm",
       "audFileExt": "wav, mp3",
-      "vidFileExt": "3gp, mp4, avi"
+      "vidFileExt": "3gp, mp4, avi, flv"
     }
   ]
 }

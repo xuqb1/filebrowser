@@ -1091,6 +1091,77 @@ router.post('/deleteUser',  async (req, res)=>{
   await db.write();
   res.status(200).json({code:200, result: true, msg:'删除用户成功'});
 });
+// 获取文件内容，以base64返回
+router.post('/getFileContent', (req, res)=>{
+  if(checkSession(req)==false){
+    res.status(400).json({code:400, msg:'need re-login'});
+    return;
+  }
+  let fullPath = req.body.path;
+  try{
+    if(fs.existsSync(fullPath)==false){
+      return res.status(400).json({ code: 400, msg: '文件不存在' });
+    }
+    const absolutePath = path.resolve(fullPath);
+    const fileContent = fs.readFileSync(absolutePath);
+    const base64Content = fileContent.toString('base64');
+    res.status(200).json({code:200, result: true, msg:'获取内容成功', data: base64Content});
+  }catch(error){
+    console.log('L1110 error=', error);
+    return res.status(400).json({ code: 400, msg: '获取文件内容出错' });
+  }
+});
+// 保存文件
+router.post('/saveFile', (req, res)=>{
+  let fullPath = req.body.path;
+  try{
+    if(fs.existsSync(fullPath)==false){
+      return res.status(400).json({ code: 400, msg: '文件不存在' });
+    }
+    // 对 Base64 字符串进行解码
+    const decodedBuffer = Buffer.from(req.body.content, 'base64');
+    
+    // 定义要写入的文件路径
+    const filePath = path.resolve(fullPath);
+    //console.log('L1126 decodeBuffer='+decodedBuffer);
+    // 同步写入文件
+    fs.writeFileSync(filePath, decodedBuffer);
+    console.log('文件写入成功！');
+    res.status(200).json({code:200, result: true, msg:'保存文件成功', data: req.body.name});
+  }catch(error){
+    console.log('L1110 error=', error);
+    return res.status(400).json({ code: 400, msg: '保存文件出错' });
+  }
+});
+router.post('/video', (req, res) => {
+    const videoPath = req.body.path; //path.join(__dirname, 'your_video.mp4');
+    const stat = fs.statSync(videoPath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (range) {
+        const parts = range.replace(/bytes=/, '').split('-');
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunksize = (end - start) + 1;
+        const file = fs.createReadStream(videoPath, { start, end });
+        const head = {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': 'video/mp4'
+        };
+        res.writeHead(206, head);
+        file.pipe(res);
+    } else {
+        const head = {
+            'Content-Length': fileSize,
+            'Content-Type': 'video/mp4'
+        };
+        res.writeHead(200, head);
+        fs.createReadStream(videoPath).pipe(res);
+    }
+});
 router.get('/download/:filename', (req, res) => {
   const { username } = req.session.user;
   if (!username) {
